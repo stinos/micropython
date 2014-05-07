@@ -7,7 +7,8 @@
     <ClCompile Include="$(PyBaseDir)py\*.c" />
     <ClCompile Include="$(PyBaseDir)unix\*.c" Exclude="$(PyBaseDir)unix\modffi.c;$(PyBaseDir)unix\modsocket.c;$(PyBaseDir)unix\seg_helpers.c" />
     <ClCompile Include="$(PyBaseDir)windows\*.c" />
-    <ClCompile Include="$(PyBaseDir)windows\msvc\*.c" />
+    <ClCompile Include="$(PyBaseDir)windows\msvc\*.c" Exclude="$(PyBaseDir)windows\msvc\intime*.c" Condition="$(INtimeRsl)==''" />
+    <ClCompile Include="$(PyBaseDir)windows\msvc\*.c" Exclude="$(PyBaseDir)windows\msvc\snprintf.c;$(PyBaseDir)windows\msvc\gettimeofday.c" Condition="$(INtimeRsl)!=''" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(PyBaseDir)py\*.h" />

@@ -67,7 +67,8 @@ def run_tests(pyb, tests, args):
         if pyb is None:
             # run on PC
             try:
-                output_mupy = subprocess.check_output([MICROPYTHON, '-X', 'emit=bytecode', test_file])
+                command = ['c:\\intime\\bin\\piperta.exe', '-stderr', 'micropython.rta', 'D:\\projects\\ghb4\\micropython\\tests\\' + test_file]
+                output_mupy = subprocess.check_output(command)
             except subprocess.CalledProcessError:
                 output_mupy = b'CRASH'
         else:

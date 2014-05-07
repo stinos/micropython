@@ -18,6 +18,7 @@ EXPORTS
   mp_obj_str_get_data
   mp_obj_dict_store
   mp_obj_get_array
+  mp_obj_is_exception_instance
   mp_builtin_object_dict_obj
   mp_make_function_n
   mp_make_function_var_between

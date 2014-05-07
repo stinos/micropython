@@ -9,6 +9,8 @@
 *.exp
 *.lib
 *.map
+*.rta
+*.rsl
 *.pyd
 *.dll
 *.pyd

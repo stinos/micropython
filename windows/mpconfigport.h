@@ -49,7 +49,11 @@
 #define MICROPY_PY_BUILTINS_STR_UNICODE (0)
 #define MICROPY_PY_BUILTINS_FROZENSET (1)
 #define MICROPY_PY_SYS_EXIT         (1)
+#ifdef __INTIME__
+#define MICROPY_PY_SYS_PLATFORM     "intime"
+#else
 #define MICROPY_PY_SYS_PLATFORM     "win32"
+#endif
 #define MICROPY_PY_SYS_STDFILES     (1)
 #define MICROPY_PY_CMATH            (1)
 #define MICROPY_PY_IO_FILEIO        (1)
@@ -93,7 +97,12 @@ extern const struct _mp_obj_module_t mp_module_time;
     { MP_OBJ_NEW_QSTR(MP_QSTR_time), (mp_obj_t)&mp_module_time }, \
 
 // We need to provide a declaration/definition of alloca()
+#ifndef __INTIME__
 #include <malloc.h>
+#else
+#include <stdlib.h>
+void *alloca(size_t n);
+#endif
 
 #include "realpath.h"
 #include "init.h"
@@ -126,8 +135,10 @@ void msec_sleep(double msec);
 #define STDOUT_FILENO               1
 #define STDERR_FILENO               2
 #define PATH_MAX                    MICROPY_ALLOC_PATH_MAX
+#ifndef __INTIME__
 #define S_ISREG(m)                  (((m) & S_IFMT) == S_IFREG)
 #define S_ISDIR(m)                  (((m) & S_IFMT) == S_IFDIR)
+#endif
 
 
 // Put static/global variables in sections with a known name we can lookup for the GC
@@ -155,6 +166,13 @@ int snprintf(char *dest, size_t count, const char *format, ...);
 #else
 #define API __declspec(dllimport)
 #endif
+#endif
+
+// INTime specifics
+#ifdef __INTIME__
+double log2(double n);
+double loggamma(double x);
+double tgamma(double x);
 #endif
 
 // MingW specifics

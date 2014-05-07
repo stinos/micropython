@@ -54,6 +54,11 @@ char *prompt(char *p) {
     if (!s) {
         return NULL;
     }
+#ifdef __INTIME__
+    if (*s == 0x0A || *s == 0x1A) { //Ctrl-C or Ctrl-Z
+        return NULL;
+    }
+#endif
     int l = strlen(buf);
     if (buf[l - 1] == '\n') {
         buf[l - 1] = 0;

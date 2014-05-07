@@ -30,5 +30,9 @@ extern HANDLE hSleepEvent;
 
 void msec_sleep(double msec) {
     ResetEvent(hSleepEvent);
+#ifdef __INTIME__
+    WaitForSingleObject(hSleepEvent, (int)msec);
+#else
     WaitForSingleObjectEx(hSleepEvent, msec, FALSE);
+#endif
 }

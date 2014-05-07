@@ -27,6 +27,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <windows.h>
+#ifdef __INTIME__
+#include <mpconfigport.h>
+#include <stdio.h>
+#include <iwin32.h>
+#include <rt.h>
+#endif
 
 extern void getbss();
 
@@ -35,10 +41,28 @@ HANDLE hSleepEvent = NULL;
 void init() {
     getbss();
     hSleepEvent = CreateEvent(NULL, TRUE, FALSE, FALSE);
-#ifdef __MINGW32__
+#if defined( __MINGW32__ )
     putenv("PRINTF_EXPONENT_DIGITS=2");
-#else
+#elif !defined( __INTIME__ )
     _set_output_format(_TWO_DIGIT_EXPONENT);
+#endif
+#ifdef __INTIME__
+    //INTime env vars can only set through registry (or some tool maybe),
+    //so for now set the main py path to the dir where the executable is
+    RTHANDLE mod = GetRtModuleHandle(MICROPY_PORT_COREMODULE);
+    char fullPath[MAX_PATH];
+    GetRtModuleFilename(mod, fullPath, sizeof(fullPath));
+    const size_t len = strlen(fullPath);
+    for (size_t i = len; i > 0; --i) {
+        if (fullPath[i] == '\\') {
+            fullPath[i] = 0;
+            break;
+        }
+        fullPath[i] = 0;
+    }
+    char env[MAX_PATH];
+    sprintf(env, "%s = %s", "MICROPYPATH", fullPath);
+    putenv(env);
 #endif
 }
 
