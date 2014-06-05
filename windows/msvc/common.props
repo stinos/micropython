@@ -6,12 +6,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <OutDir>$(PyOutDir)</OutDir>
-    <IntDir>$(PyIntDir)</IntDir>
-    <PyFileCopyCookie>$(PyBuildDir)copycookie$(Configuration)$(Platform)</PyFileCopyCookie>
+    <IntDir>$(PyIntDir)$(ProjectName)\</IntDir>
+    <PyFileCopyCookie>$(PyBuildDir)copycookie$(Configuration)$(Platform)$(ProjectName)</PyFileCopyCookie>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(PyIncDirs);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>false</SDLCheck>
       <WarningLevel>Level1</WarningLevel>
@@ -22,13 +21,14 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
+      <ImportLibrary>$(Outdir)$(ProjectName).lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <PyOutputFiles Include="$(TargetPath)">
       <Destination>$(PyWinDir)%(FileName)%(Extension)</Destination>
     </PyOutputFiles>
-    <PyCookieFiles Include="$(PyBuildDir)copycookie*" Exclude="$(PyFileCopyCookie)"/>
+    <PyCookieFiles Include="$(PyBuildDir)copycookie*$(ProjectName)" Exclude="$(PyFileCopyCookie)"/>
   </ItemGroup>
 
   <!-- Copy PyOutputFiles to their target destination.

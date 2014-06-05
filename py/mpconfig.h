@@ -1268,4 +1268,8 @@ typedef double mp_float_t;
 #define MP_UNLIKELY(x) __builtin_expect((x), 0)
 #endif
 
+#ifndef API
+#define API
+#endif
+
 #endif // MICROPY_INCLUDED_PY_MPCONFIG_H

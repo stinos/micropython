@@ -35,6 +35,6 @@ typedef struct _mp_handle_exception_t {
     mp_handle_exception_fun_t handle;
 } mp_handle_exception_t;
 
-extern mp_handle_exception_t mp_handle_exception;
+API extern mp_handle_exception_t mp_handle_exception;
 
 #endif // __MICROPY_INCLUDED_MPEXCEPTION_H__

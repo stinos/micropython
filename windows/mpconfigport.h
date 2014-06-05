@@ -249,4 +249,12 @@ typedef int                         ssize_t;
 #include <stddef.h> //for NULL
 #include <assert.h> //for assert
 
+
+// dll export
+
+#ifdef MICROPY_DLLEXPORT
+#define API __declspec(dllexport)
+#else
+#define API __declspec(dllimport)
+#endif
 #endif

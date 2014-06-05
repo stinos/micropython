@@ -1,3 +1,18 @@
+====
+NOTE
+====
+This fork of Micro Python (original readme below) allows building and importing
+of native modules in a CPython-like way: `import xxx` will look for a dynamic
+library `xxx.pyd` on windows or  `xxx.so` on unix (after a `.py` is not found), 
+and call an `initxxx()` function from the  which should return a new `mp_obj_module_t`
+which will be added to the scope.
+To build modules:
+- for msvc the file windows/msvc/extmopdule.props has all settings so import it
+  in a VS shared library project and build it
+- for unix use something like:
+  CPPFLAGS = -I$(MICROPYTHON_DIR) -I$(MICROPYTHON_DIR)/py -I$(MICROPYTHON_DIR)/unix -I$(MICROPYTHON_DIR)/unix/build -DMICROPY_PY_THREAD=0
+  g++ -shared -fPIC $(CPPFLAGS) -c mysrc.c -o ~/.micropython/lib/mymodule.so
+
 [![Build Status](https://travis-ci.org/micropython/micropython.png?branch=master)](https://travis-ci.org/micropython/micropython) [![Coverage Status](https://coveralls.io/repos/micropython/micropython/badge.png?branch=master)](https://coveralls.io/r/micropython/micropython?branch=master)
 
 The MicroPython project

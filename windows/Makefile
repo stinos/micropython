@@ -36,6 +36,7 @@ SRC_C = \
 	unix/modmachine.c \
 	unix/modtime.c \
 	unix/gccollect.c \
+	unix/pymain.c \
 	windows/msvc/loaddynlib.c \
 	windows_mphal.c \
 	realpath.c \

@@ -1,3 +1,5 @@
+image: Visual Studio 2017
+
 environment:
   # Python version used
   MICROPY_CPYTHON3: c:/python34/python.exe
@@ -14,9 +16,11 @@ platform:
 - x86
 - x64
 
-build:
-  project: windows/micropython.vcxproj
-  verbosity: normal
+build_script:
+- cmd: >-
+    msbuild windows/micropythoncore.vcxproj /p:platform=%platform%;configuration=%configuration%
+
+    msbuild windows/micropython.vcxproj /p:platform=%platform%;configuration=%configuration%
 
 test_script:
 - cmd: >-

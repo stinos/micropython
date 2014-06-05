@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Configuration for projects building micropython modules-->
+  <ImportGroup Label="PropertySheets">
+    <Import Project="common.props" />
+    <Import Project="micropythoncore.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <TargetExt>.pyd</TargetExt>
+    <TargetName Condition="'$(Configuration)' == 'Debug'">$(ProjectName)_d</TargetName>
+    <TargetName Condition="'$(Configuration)' != 'Debug'">$(ProjectName)</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <ExceptionHandling>Sync</ExceptionHandling>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>

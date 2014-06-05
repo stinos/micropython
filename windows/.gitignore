@@ -6,6 +6,12 @@
 *.pdb
 *.ilk
 *.filters
+*.exp
+*.lib
+*.map
+*.pyd
+*.dll
+*.pyd
 /build/*
 .vs/*
 *.VC.*db
