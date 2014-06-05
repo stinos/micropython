@@ -35,6 +35,7 @@ SRC_C = \
 	unix/modmachine.c \
 	unix/modtime.c \
 	unix/gccollect.c \
+	windows/msvc/loaddynlib.c \
 	windows_mphal.c \
 	realpath.c \
 	init.c \

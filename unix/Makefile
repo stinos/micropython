@@ -76,6 +76,14 @@ LDFLAGS_ARCH = -Wl,-Map=$@.map,--cref -Wl,--gc-sections
 endif
 LDFLAGS = $(LDFLAGS_MOD) $(LDFLAGS_ARCH) -lm $(LDFLAGS_EXTRA)
 
+ifeq ($(BUILD), build)
+LDFLAGS += -ldl -rdynamic
+# Avoid linker errors after introducing rdynamic
+MICROPY_FATFS = 0
+else
+MICROPY_FATFS = 1
+endif
+
 ifeq ($(MICROPY_FORCE_32BIT),1)
 # Note: you may need to install i386 versions of dependency packages,
 # starting with linux-libc-dev:i386
@@ -136,6 +144,7 @@ endif
 # source files
 SRC_C = \
 	main.c \
+	loaddynlib.c \
 	gccollect.c \
 	unix_mphal.c \
 	mpthreadport.c \
@@ -157,10 +166,12 @@ LIB_SRC_C = $(addprefix lib/,\
 	)
 
 # FatFS VFS support
+ifeq ($(MICROPY_FATFS),1)
 LIB_SRC_C += $(addprefix lib/,\
 	oofatfs/ff.c \
 	oofatfs/option/unicode.c \
 	)
+endif
 
 OBJ = $(PY_O)
 OBJ += $(addprefix $(BUILD)/, $(SRC_C:.c=.o))
