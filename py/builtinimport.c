@@ -54,6 +54,17 @@
 
 #define PATH_SEP_CHAR '/'
 
+// match CPython's native module naming
+#ifdef _WIN32
+#ifdef _DEBUG
+#define PYD_EXT "_d.pyd"
+#else
+#define PYD_EXT ".pyd"
+#endif
+#else
+#define PYD_EXT ".so"
+#endif
+
 STATIC mp_import_stat_t stat_dir_or_file(vstr_t *path) {
     //printf("stat %s\n", vstr_str(path));
     mp_import_stat_t stat = mp_import_stat(vstr_str(path));
@@ -64,6 +75,12 @@ STATIC mp_import_stat_t stat_dir_or_file(vstr_t *path) {
     stat = mp_import_stat(vstr_str(path));
     if (stat == MP_IMPORT_STAT_FILE) {
         return stat;
+    }
+    vstr_cut_tail_bytes(path, 3);
+    vstr_add_str(path, PYD_EXT);
+    stat = mp_import_stat(vstr_str(path));
+    if (stat == MP_IMPORT_STAT_FILE) {
+        return MP_IMPORT_STAT_PYD;
     }
     return MP_IMPORT_STAT_NO_EXIST;
 }
@@ -164,6 +181,8 @@ STATIC void do_load(mp_obj_t module_obj, vstr_t *file) {
     mp_locals_set(old_locals);
     mp_globals_set(old_globals);
 }
+
+extern mp_obj_module_t* LoadDynLib(const char *mod_name,vstr_t *name);
 
 mp_obj_t mp_builtin___import__(uint n_args, mp_obj_t *args) {
 #if DEBUG_PRINT
@@ -300,7 +319,15 @@ mp_obj_t mp_builtin___import__(uint n_args, mp_obj_t *args) {
                 nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_ImportError, "No module named '%s'", qstr_str(mod_name)));
             }
 
-            module_obj = mp_module_get(mod_name);
+            // try to load it if it's a native module
+            if (stat == MP_IMPORT_STAT_PYD) {
+                module_obj = LoadDynLib(qstr_str(mod_name),&path);
+                if (module_obj == NULL)
+                    nlr_raise(mp_obj_new_exception_msg_varg(&mp_type_ImportError, "Module load failed for '%s'", qstr_str(mod_name)));
+            } else {
+                module_obj = mp_module_get(mod_name);
+            }
+
             if (module_obj == MP_OBJ_NULL) {
                 // module not already loaded, so load it!
 
