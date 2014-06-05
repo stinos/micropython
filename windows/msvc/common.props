@@ -4,12 +4,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <OutDir>$(ProjectDir)</OutDir>
-    <IntDir>$(ProjectDir)build\$(Configuration)$(Platform)\</IntDir>
+    <IntDir>$(ProjectDir)build\$(ProjectName)$(Configuration)$(Platform)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
       <AdditionalIncludeDirectories>.\;.\build;.\msvc;..\py</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>MICROPY_DLLEXPORT;_USE_MATH_DEFINES;_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>false</SDLCheck>
       <WarningLevel>Level1</WarningLevel>
       <ExceptionHandling>false</ExceptionHandling>
@@ -17,6 +17,8 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
+      <ModuleDefinitionFile>msvc/exports.def</ModuleDefinitionFile>
+      <ImportLibrary>$(Outdir)$(ProjectName).lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />

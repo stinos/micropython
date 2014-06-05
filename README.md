@@ -1,3 +1,12 @@
+NOTE
+====
+This fork of Micro Python (original readme below) allows building and importing
+of native modules when using the msvc toolset in a similar way as CPython:
+`import xxx` will look for an `xxx.pyd` (after a `.py` is not found),
+and call an `initxxx()` function which should return a new `mp_obj_module_t`
+which will be added to the scope.
+To build modules: import windows/msvc/extmopdule.props in a VS shared library project.
+
 [![Build Status][travis-img]][travis-repo]
 [travis-img]:  https://travis-ci.org/micropython/micropython.png?branch=master
 [travis-repo]: https://travis-ci.org/micropython/micropython

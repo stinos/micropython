@@ -70,5 +70,5 @@ char *bss_end = 0;
 //The standard .bss section is appended to the standard .data section however so it cannot
 //be looked up by name. To deal with that we put all uPy static variables in a named section.
 void getbss() {
-    section_boundaries_from_module(NULL, MICROPY_PORT_BSSSECTION, &bss_start, &bss_end);
+    section_boundaries_from_module(MICROPY_PORT_COREMODULE, MICROPY_PORT_BSSSECTION, &bss_start, &bss_end);
 }

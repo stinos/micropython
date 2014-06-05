@@ -280,7 +280,7 @@ struct _mp_obj_type_t {
 typedef struct _mp_obj_type_t mp_obj_type_t;
 
 // Constant types, globally accessible
-extern const mp_obj_type_t mp_type_type;
+API extern const mp_obj_type_t mp_type_type;
 extern const mp_obj_type_t mp_type_object;
 extern const mp_obj_type_t mp_type_NoneType;
 extern const mp_obj_type_t mp_type_bool;
@@ -304,7 +304,7 @@ extern const mp_obj_type_t mp_type_zip;
 extern const mp_obj_type_t mp_type_array;
 extern const mp_obj_type_t mp_type_super;
 extern const mp_obj_type_t mp_type_gen_instance;
-extern const mp_obj_type_t mp_type_fun_native;
+API extern const mp_obj_type_t mp_type_fun_native;
 extern const mp_obj_type_t mp_type_fun_bc;
 extern const mp_obj_type_t mp_type_module;
 extern const mp_obj_type_t mp_type_staticmethod;
@@ -333,12 +333,12 @@ extern const mp_obj_type_t mp_type_NameError;
 extern const mp_obj_type_t mp_type_NotImplementedError;
 extern const mp_obj_type_t mp_type_OSError;
 extern const mp_obj_type_t mp_type_OverflowError;
-extern const mp_obj_type_t mp_type_RuntimeError;
+API extern const mp_obj_type_t mp_type_RuntimeError;
 extern const mp_obj_type_t mp_type_StopIteration;
 extern const mp_obj_type_t mp_type_SyntaxError;
 extern const mp_obj_type_t mp_type_SystemError;
 extern const mp_obj_type_t mp_type_SystemExit;
-extern const mp_obj_type_t mp_type_TypeError;
+API extern const mp_obj_type_t mp_type_TypeError;
 extern const mp_obj_type_t mp_type_ValueError;
 extern const mp_obj_type_t mp_type_ZeroDivisionError;
 
@@ -348,9 +348,9 @@ extern const mp_obj_type_t mp_type_ZeroDivisionError;
 #define mp_const_false ((mp_obj_t)&mp_const_false_obj)
 #define mp_const_true ((mp_obj_t)&mp_const_true_obj)
 #define mp_const_empty_tuple ((mp_obj_t)&mp_const_empty_tuple_obj)
-extern const struct _mp_obj_none_t mp_const_none_obj;
-extern const struct _mp_obj_bool_t mp_const_false_obj;
-extern const struct _mp_obj_bool_t mp_const_true_obj;
+API extern const struct _mp_obj_none_t mp_const_none_obj;
+API extern const struct _mp_obj_bool_t mp_const_false_obj;
+API extern const struct _mp_obj_bool_t mp_const_true_obj;
 extern const struct _mp_obj_tuple_t mp_const_empty_tuple_obj;
 extern const struct _mp_obj_ellipsis_t mp_const_ellipsis_obj;
 extern const struct _mp_obj_exception_t mp_const_MemoryError_obj;
@@ -512,6 +512,8 @@ mp_obj_t mp_obj_dict_get(mp_obj_t self_in, mp_obj_t index);
 mp_obj_t mp_obj_dict_store(mp_obj_t self_in, mp_obj_t key, mp_obj_t value);
 mp_obj_t mp_obj_dict_delete(mp_obj_t self_in, mp_obj_t key);
 mp_map_t *mp_obj_dict_get_map(mp_obj_t self_in);
+mp_obj_t mp_obj_new_dict_iterator(mp_obj_dict_t *dict, int cur);
+mp_map_elem_t *dict_it_iternext_elem(mp_obj_t self_in);
 
 // set
 void mp_obj_set_store(mp_obj_t self_in, mp_obj_t item);
@@ -540,7 +542,7 @@ const char *mp_obj_fun_get_name(mp_const_obj_t fun);
 const char *mp_obj_code_get_name(const byte *code_info);
 
 mp_obj_t mp_identity(mp_obj_t self);
-MP_DECLARE_CONST_FUN_OBJ(mp_identity_obj);
+API MP_DECLARE_CONST_FUN_OBJ(mp_identity_obj);
 
 // module
 typedef struct _mp_obj_module_t {

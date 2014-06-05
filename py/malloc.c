@@ -110,6 +110,10 @@ void *m_malloc_with_finaliser(int num_bytes) {
     DEBUG_printf("malloc %d : %p\n", num_bytes, ptr);
     return ptr;
 }
+#else
+void *m_malloc_with_finaliser(int num_bytes) {
+    return m_malloc(num_bytes);
+}
 #endif
 
 void *m_malloc0(int num_bytes) {

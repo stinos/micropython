@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <uPyDir>$(MsBuildThisFileDirectory)..\..\</uPyDir>
+    <OutDir>$(uPyDir)windows\</OutDir>
+    <TargetExt>.pyd</TargetExt>
+    <TargetName Condition="'$(Configuration)' == 'Debug'">$(ProjectName)_d</TargetName>
+    <TargetName Condition="'$(Configuration)' != 'Debug'">$(ProjectName)</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(uPyDir)\;$(uPyDir)\py;$(uPyDir)\windows;$(uPyDir)\windows\build;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(uPyDir)\windows;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>micropythoncore.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateMapFile>true</GenerateMapFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>

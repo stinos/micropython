@@ -274,7 +274,7 @@ void pre_process_options(int argc, char **argv) {
 #define PATHLIST_SEP_CHAR ':'
 #endif
 
-int main(int argc, char **argv) {
+int cmain(int argc, char **argv) {
     mp_stack_set_limit(32768);
 
     pre_process_options(argc, argv);

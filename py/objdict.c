@@ -38,8 +38,8 @@
 #include "runtime.h"
 #include "builtin.h"
 
-STATIC mp_obj_t mp_obj_new_dict_iterator(mp_obj_dict_t *dict, int cur);
-STATIC mp_map_elem_t *dict_it_iternext_elem(mp_obj_t self_in);
+mp_obj_t mp_obj_new_dict_iterator(mp_obj_dict_t *dict, int cur);
+mp_map_elem_t *dict_it_iternext_elem(mp_obj_t self_in);
 STATIC mp_obj_t dict_update(uint n_args, const mp_obj_t *args, mp_map_t *kwargs);
 
 STATIC void dict_print(void (*print)(void *env, const char *fmt, ...), void *env, mp_obj_t self_in, mp_print_kind_t kind) {
@@ -158,7 +158,7 @@ typedef struct _mp_obj_dict_it_t {
     mp_uint_t cur;
 } mp_obj_dict_it_t;
 
-STATIC mp_map_elem_t *dict_it_iternext_elem(mp_obj_t self_in) {
+mp_map_elem_t *dict_it_iternext_elem(mp_obj_t self_in) {
     mp_obj_dict_it_t *self = self_in;
     mp_uint_t max = self->dict->map.alloc;
     mp_map_t *map = &self->dict->map;
@@ -190,7 +190,7 @@ STATIC const mp_obj_type_t mp_type_dict_it = {
     .iternext = dict_it_iternext,
 };
 
-STATIC mp_obj_t mp_obj_new_dict_iterator(mp_obj_dict_t *dict, int cur) {
+mp_obj_t mp_obj_new_dict_iterator(mp_obj_dict_t *dict, int cur) {
     mp_obj_dict_it_t *o = m_new_obj(mp_obj_dict_it_t);
     o->base.type = &mp_type_dict_it;
     o->dict = dict;

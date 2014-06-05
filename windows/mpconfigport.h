@@ -144,6 +144,15 @@ void msec_sleep(double msec);
 // Functions implemented in platform code
 
 int snprintf(char *dest, size_t count, const char *format, ...);
+
+
+// dll export
+
+#ifdef MICROPY_DLLEXPORT
+#define API __declspec(dllexport)
+#else
+#define API __declspec(dllimport)
+#endif
 #endif
 
 // MingW specifics
