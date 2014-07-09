@@ -59,6 +59,8 @@
 #define MICROPY_GCREGS_SETJMP       (1)
 #endif
 
+#define MICROPY_STACK_CHECK (0) //doesn't work in multithreaded environment
+
 #define MICROPY_PORT_INIT_FUNC      init()
 #define MICROPY_PORT_DEINIT_FUNC    deinit()
 
