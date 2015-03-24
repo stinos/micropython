@@ -16,6 +16,10 @@ platform:
 - x86
 - x64
 
+before_build:
+  # Enable MICROPY_STACK_CHECK so the tests for recursivity pass
+- ps: "@\"\n<?xml version=\"1.0\" encoding=\"utf-8\"?> \n<Project xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">\n  <ItemDefinitionGroup>\n    <ClCompile>\n      <PreprocessorDefinitions>%(PreprocessorDefinitions);MICROPY_STACK_CHECK=1</PreprocessorDefinitions>\n    </ClCompile>\n  </ItemDefinitionGroup>\n</Project>\n\"@ | Set-Content .\\windows\\msvc\\user.props"
+
 build_script:
 - cmd: >-
     msbuild windows/micropythoncore.vcxproj /p:platform=%platform%;configuration=%configuration%
