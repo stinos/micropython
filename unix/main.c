@@ -278,7 +278,9 @@ STATIC void set_sys_argv(char *argv[], int argc, int start_arg) {
 #define PATHLIST_SEP_CHAR ':'
 #endif
 
-int main(int argc, char **argv) {
+void RegisterMyModule();
+
+int cmain(int argc, char **argv) {
     mp_stack_set_limit(40000 * (BYTES_PER_WORD / 4));
 
     pre_process_options(argc, argv);
@@ -363,6 +365,9 @@ int main(int argc, char **argv) {
     printf("    cur   %d\n", m_get_current_bytes_allocated());
     printf("    peak  %d\n", m_get_peak_bytes_allocated());
     */
+
+
+    RegisterMyModule();
 
     const int NOTHING_EXECUTED = -2;
     int ret = NOTHING_EXECUTED;

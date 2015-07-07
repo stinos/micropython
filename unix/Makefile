@@ -21,10 +21,12 @@ INC += -I$(BUILD)
 CWARN = -Wall -Werror
 CWARN += -Wpointer-arith -Wuninitialized
 CFLAGS = $(INC) $(CWARN) -ansi -std=gnu99 -DUNIX $(CFLAGS_MOD) $(COPT) $(CFLAGS_EXTRA)
+CPPFLAGS = $(INC) $(CWARN) -DUNIX -std=c++11 -lstdc++ -c $(COPT)
 
 # Debugging/Optimization
 ifdef DEBUG
 CFLAGS += -g
+CPPFLAGS += -g
 COPT = -O0
 else
 COPT = -Os #-DNDEBUG
@@ -48,6 +50,7 @@ ifeq ($(MICROPY_FORCE_32BIT),1)
 # Note: you may need to install i386 versions of dependency packages,
 # starting with linux-libc-dev:i386
 CFLAGS += -m32
+CPPFLAGS += -m32
 LDFLAGS += -m32
 ifeq ($(MICROPY_PY_FFI),1)
 ifeq ($(UNAME_S),Linux)
@@ -103,6 +106,9 @@ SRC_C = \
 	coverage.c \
 	$(SRC_MOD)
 
+SRC_CPP = \
+	cppmain.cpp
+
 # Include builtin package manager in the standard build (and coverage)
 ifeq ($(PROG),micropython)
 SRC_C += $(BUILD)/_frozen_upip.c
@@ -116,6 +122,7 @@ LIB_SRC_C = $(addprefix lib/,\
 
 OBJ = $(PY_O)
 OBJ += $(addprefix $(BUILD)/, $(SRC_C:.c=.o))
+OBJ += $(addprefix $(BUILD)/, $(SRC_CPP:.cpp=.o))
 OBJ += $(addprefix $(BUILD)/, $(LIB_SRC_C:.c=.o))
 
 include ../py/mkrules.mk

@@ -42,9 +42,24 @@ $(Q)$(CC) $(CFLAGS) -c -MD -o $@ $<
   $(RM) -f $(@:.o=.d)
 endef
 
+define compile_cpp
+$(ECHO) "CCPP $<"
+$(Q)$(CCPP) $(CPPFLAGS) -MD -o $@ $<
+@# The following fixes the dependency file.
+@# See http://make.paulandlesley.org/autodep.html for details.
+@$(CP) $(@:.o=.d) $(@:.o=.P); \
+  $(SED) -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
+      -e '/^$$/ d' -e 's/$$/ :/' < $(@:.o=.d) >> $(@:.o=.P); \
+  $(RM) -f $(@:.o=.d)
+endef
+
 vpath %.c . $(TOP)
 $(BUILD)/%.o: %.c
 	$(call compile_c)
+
+vpath %.cpp . $(TOP)
+$(BUILD)/%.o: %.cpp
+	$(call compile_cpp)
 
 $(BUILD)/%.pp: %.c
 	$(ECHO) "PreProcess $<"
@@ -81,7 +96,7 @@ all: $(PROG)
 
 $(PROG): $(OBJ)
 	$(ECHO) "LINK $@"
-	$(Q)$(CC) $(COPT) -o $@ $(OBJ) $(LIB) $(LDFLAGS)
+	$(Q)$(CCPP) $(COPT) -o $@ $(OBJ) $(LIB) $(LDFLAGS)
 ifndef DEBUG
 	$(Q)$(STRIP) $(STRIPFLAGS_EXTRA) $(PROG)
 endif
