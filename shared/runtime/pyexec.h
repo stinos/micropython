@@ -33,6 +33,15 @@ typedef enum {
     PYEXEC_MODE_RAW_REPL,
 } pyexec_mode_kind_t;
 
+typedef void (*mp_handle_exception_fun_t)(void *data, mp_obj_t ex);
+
+typedef struct _mp_handle_exception_t {
+    void *data;
+    mp_handle_exception_fun_t handle;
+} mp_handle_exception_t;
+
+extern struct _mp_handle_exception_t mp_handle_exception;
+
 extern pyexec_mode_kind_t pyexec_mode_kind;
 
 #define PYEXEC_FORCED_EXIT (0x100)

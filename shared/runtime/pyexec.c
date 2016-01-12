@@ -42,6 +42,13 @@
 
 pyexec_mode_kind_t pyexec_mode_kind = PYEXEC_MODE_FRIENDLY_REPL;
 
+static void print_exception(void *data, mp_obj_t exc) {
+    (void)data;
+    mp_obj_print_exception(&mp_plat_print, exc);
+}
+
+mp_handle_exception_t mp_handle_exception = {NULL, print_exception};
+
 #if MICROPY_REPL_INFO
 static bool repl_display_debugging_info = 0;
 #endif
@@ -184,7 +191,9 @@ static int parse_compile_execute(const void *source, mp_parse_input_kind_t input
             ret = PYEXEC_FORCED_EXIT;
             #endif
         } else { // other exception
-            mp_obj_print_exception(&mp_plat_print, MP_OBJ_FROM_PTR(nlr.ret_val));
+            if (mp_handle_exception.handle) {
+                mp_handle_exception.handle(mp_handle_exception.data, MP_OBJ_FROM_PTR(nlr.ret_val));
+            }
             ret = PYEXEC_UNHANDLED_EXCEPTION;
             #if MICROPY_PYEXEC_ENABLE_EXIT_CODE_HANDLING
             if (mp_obj_is_subclass_fast(MP_OBJ_FROM_PTR(((mp_obj_base_t *)nlr.ret_val)->type), MP_OBJ_FROM_PTR(&mp_type_KeyboardInterrupt))) { // keyboard interrupt
