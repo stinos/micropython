@@ -106,7 +106,9 @@ static int handle_uncaught_exception(mp_obj_base_t *exc) {
     }
 
     // Report all other exceptions
-    mp_obj_print_exception(&mp_stderr_print, MP_OBJ_FROM_PTR(exc));
+    if (mp_handle_exception.handle) {
+        mp_handle_exception.handle(mp_handle_exception.data, MP_OBJ_FROM_PTR(exc));
+    }
     return 1;
 }
 
