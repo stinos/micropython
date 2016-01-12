@@ -49,6 +49,7 @@
 #include "py/mpthread.h"
 #include "extmod/misc.h"
 #include "genhdr/mpversion.h"
+#include "mpexception.h"
 #include "input.h"
 
 // Command line options, with their defaults
@@ -70,6 +71,11 @@ STATIC void stderr_print_strn(void *env, const char *str, size_t len) {
 
 const mp_print_t mp_stderr_print = {NULL, stderr_print_strn};
 
+STATIC void print_exception(void *data, mp_obj_t exc) {
+    (void) data;
+    mp_obj_print_exception(&mp_stderr_print, exc);
+}
+
 #define FORCED_EXIT (0x100)
 // If exc is SystemExit, return value where FORCED_EXIT bit set,
 // and lower 8 bits are SystemExit value. For all other exceptions,
@@ -87,7 +93,9 @@ STATIC int handle_uncaught_exception(mp_obj_base_t *exc) {
     }
 
     // Report all other exceptions
-    mp_obj_print_exception(&mp_stderr_print, MP_OBJ_FROM_PTR(exc));
+    if (mp_handle_exception.handle) {
+        mp_handle_exception.handle(mp_handle_exception.data, MP_OBJ_FROM_PTR(exc));
+    }
     return 1;
 }
 
@@ -442,6 +450,7 @@ MP_NOINLINE int main_(int argc, char **argv) {
     gc_init(heap, heap + heap_size);
 #endif
 
+    mp_handle_exception.handle = print_exception;
     mp_init();
 
     char *home = getenv("HOME");

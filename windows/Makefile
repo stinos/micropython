@@ -32,6 +32,7 @@ SRC_C = \
 	unix/file.c \
 	unix/input.c \
 	unix/modos.c \
+	unix/mpexception.c \
 	unix/modmachine.c \
 	unix/modtime.c \
 	unix/gccollect.c \

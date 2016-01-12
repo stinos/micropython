@@ -13,6 +13,7 @@
     <ClCompile Include="$(PyBaseDir)unix\modos.c"/>
     <ClCompile Include="$(PyBaseDir)unix\modtime.c"/>
     <ClCompile Include="$(PyBaseDir)unix\modmachine.c" />
+    <ClCompile Include="$(PyBaseDir)unix\mpexception.c" />
     <ClCompile Include="$(PyBaseDir)extmod\machine_mem.c" />
     <ClCompile Include="$(PyBaseDir)extmod\machine_pinbase.c" />
     <ClCompile Include="$(PyBaseDir)extmod\machine_pulse.c" />

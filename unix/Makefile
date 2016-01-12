@@ -147,6 +147,7 @@ SRC_C = \
 	loaddynlib.c \
 	gccollect.c \
 	unix_mphal.c \
+	mpexception.c \
 	mpthreadport.c \
 	input.c \
 	file.c \
