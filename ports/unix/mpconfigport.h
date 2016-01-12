@@ -168,6 +168,8 @@ typedef long mp_off_t;
 
 #define MICROPY_PY_SOCKET_LISTEN_BACKLOG_DEFAULT (SOMAXCONN < 128 ? SOMAXCONN : 128)
 
+extern struct _mp_handle_exception_t mp_handle_exception;
+
 // Bare-metal ports don't have stderr. Printing debug to stderr may give tests
 // which check stdout a chance to pass, etc.
 extern const struct _mp_print_t mp_stderr_print;
