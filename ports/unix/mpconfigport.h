@@ -181,6 +181,7 @@
 #define MICROPY_EPOCH_IS_1970       (1)
 
 extern const struct _mp_print_t mp_stderr_print;
+extern struct _mp_handle_exception_t mp_handle_exception;
 
 #if !(defined(MICROPY_GCREGS_SETJMP) || defined(__x86_64__) || defined(__i386__) || defined(__thumb2__) || defined(__thumb__) || defined(__arm__))
 // Fall back to setjmp() implementation for discovery of GC pointers in registers.

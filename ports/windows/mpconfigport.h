@@ -127,6 +127,7 @@
 #define MICROPY_EPOCH_IS_1970       (1)
 
 extern const struct _mp_print_t mp_stderr_print;
+extern struct _mp_handle_exception_t mp_handle_exception;
 
 #ifdef _MSC_VER
 #define MICROPY_GCREGS_SETJMP       (1)
