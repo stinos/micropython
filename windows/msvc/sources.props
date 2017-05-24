@@ -6,9 +6,23 @@
     <ClCompile Include="$(PyBaseDir)windows\*.c" />
     <ClCompile Include="$(PyBaseDir)windows\msvc\*.c" />
     <ClCompile Include="$(PyBaseDir)windows\dlfcn_win32\*.c" />
-    <ClCompile Include="$(PyBaseDir)windows\libffi_msvc\*.c" Exclude="$(PyBaseDir)windows\libffi_msvc\win32.c" />
+    <!-- <ClCompile Include="$(PyBaseDir)windows\libffi_msvc\*.c" Exclude="$(PyBaseDir)windows\libffi_msvc\win32.c" />
     <ClCompile Include="$(PyBaseDir)windows\libffi_msvc\win32.c" Condition="'$(Platform)'=='Win32'" />
-    <MASM Include="$(PyBaseDir)windows\libffi_msvc\win64.asm" Condition="'$(Platform)'=='x64'" />
+    <MASM Include="$(PyBaseDir)windows\libffi_msvc\win64.asm" Condition="'$(Platform)'=='x64'" /> -->
+
+    <ClCompile Include="$(PyBaseDir)lib\libffi\src\closures.c" />
+    <ClCompile Include="$(PyBaseDir)lib\libffi\src\prep_cif.c" />
+    <ClCompile Include="$(PyBaseDir)lib\libffi\src\raw_api.c" />
+    <ClCompile Include="$(PyBaseDir)lib\libffi\src\types.c" />
+    <ClCompile Include="$(PyBaseDir)lib\libffi\src\x86\ffi.c" />
+
+    <CustomBuild Include="$(PyWinDir)msvc\win32_plain.asm">
+      <Command>
+        ml.exe /c /Cx /coff /safeseh /Fo $(PyIntDir)win32_ffi.obj %(FullPath)
+      </Command>
+      <Outputs>$(PyIntDir)win32_ffi.obj</Outputs>
+    </CustomBuild>
+
     <ClCompile Include="$(PyBaseDir)lib\mp-readline\*.c" />
     <ClCompile Include="$(PyBaseDir)unix\file.c"/>
     <ClCompile Include="$(PyBaseDir)unix\gccollect.c"/>
