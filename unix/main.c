@@ -419,6 +419,8 @@ STATIC void set_sys_argv(char *argv[], int argc, int start_arg) {
 
 MP_NOINLINE int main_(int argc, char **argv);
 
+extern void rmemShutDown();
+
 int cmain(int argc, char **argv) {
     #if MICROPY_PY_THREAD
     mp_thread_init();
@@ -429,7 +431,9 @@ int cmain(int argc, char **argv) {
     // this function. main_() itself may have other functions inlined (with
     // their own stack variables), that's why we need this main/main_ split.
     mp_stack_ctrl_init();
-    return main_(argc, argv);
+    int r = main_(argc, argv);
+    rmemShutDown();
+    return r;
 }
 
 MP_NOINLINE int main_(int argc, char **argv) {

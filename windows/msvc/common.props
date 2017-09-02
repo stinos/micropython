@@ -22,6 +22,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
       <ImportLibrary>$(Outdir)$(ProjectName).lib</ImportLibrary>
+      <AdditionalLibraryDirectories>D:\Downloads\MTuner\SDK\.build\x32\vs2013\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>MTunerLibDebug.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

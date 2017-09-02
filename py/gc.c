@@ -27,6 +27,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
+#include <d:/Downloads/MTuner/SDK/inc/rmem.h>
 
 #include "py/mpstate.h"
 #include "py/gc.h"
@@ -102,11 +103,17 @@
 #define GC_EXIT()
 #endif
 
+RMemMarker collectMarker;
+
 // TODO waste less memory; currently requires that all entries in alloc_table have a corresponding block in pool
 void gc_init(void *start, void *end) {
     // align end pointer on block boundary
     end = (void*)((uintptr_t)end & (~(BYTES_PER_BLOCK - 1)));
     DEBUG_printf("Initializing GC heap: %p..%p = " UINT_FMT " bytes\n", start, end, (byte*)end - (byte*)start);
+    rmemInit(0);
+    rmemRegisterMarker(&collectMarker);
+    //RMEM_REGISTER_TAG("Root tag");
+    //RMEM_TAG("Root tag");
 
     // calculate parameters for GC (T=total, A=alloc table, F=finaliser table, P=pool; all in bytes):
     // T = A + F + P
@@ -300,6 +307,7 @@ STATIC void gc_sweep(void) {
 }
 
 void gc_collect_start(void) {
+    rmemSetMarker(&collectMarker);
     GC_ENTER();
     MP_STATE_MEM(gc_lock_depth)++;
     #if MICROPY_GC_ALLOC_THRESHOLD
@@ -475,6 +483,7 @@ found:
     // we must create this pointer before unlocking the GC so a collection can find it
     void *ret_ptr = (void*)(MP_STATE_MEM(gc_pool_start) + start_block * BYTES_PER_BLOCK);
     DEBUG_printf("gc_alloc(%p)\n", ret_ptr);
+    rmemAlloc(0, ret_ptr, n_bytes, 8);
 
     #if MICROPY_GC_ALLOC_THRESHOLD
     MP_STATE_MEM(gc_alloc_amount) += n_blocks;
@@ -535,6 +544,7 @@ void gc_free(void *ptr) {
     }
 
     DEBUG_printf("gc_free(%p)\n", ptr);
+    rmemFree(0, ptr);
 
     if (ptr == NULL) {
         GC_EXIT();
@@ -754,6 +764,7 @@ void *gc_realloc(void *ptr_in, size_t n_bytes, bool allow_move) {
     }
 
     DEBUG_printf("gc_realloc(%p -> %p)\n", ptr_in, ptr_out);
+    rmemRealloc(0, ptr_in, n_bytes, 8, ptr_out);
     memcpy(ptr_out, ptr_in, n_blocks * BYTES_PER_BLOCK);
     gc_free(ptr_in);
     return ptr_out;
