@@ -105,6 +105,19 @@ STATIC void float_print(const mp_print_t *print, mp_obj_t o_in, mp_print_kind_t 
     const int precision = 7;
     #endif
     #else
+    if (kind == PRINT_JSON) {
+        if (isnan(o_val)) {
+            print->print_strn(print->data, "NaN", 3);
+            return;
+        } else if (isinf(o_val)) {
+            if (signbit(o_val)) {
+                print->print_strn(print->data, "-Infinity", 9);
+            } else {
+                print->print_strn(print->data, "Infinity", 8);
+            }
+            return;
+        }
+    }
     char buf[32];
     const int precision = 16;
     #endif

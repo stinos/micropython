@@ -80,6 +80,8 @@ exclude_tests = (
     # requires double precision floating point to work
     "float/float2int_doubleprec_intbig.py",
     "float/float_parse_doubleprec.py",
+    "extmod/ujson_dumps_float_ex.py",
+    "extmod/ujson_loads_float_ex.py",
     # inline asm FP tests (require Cortex-M4)
     "inlineasm/asmfpaddsub.py",
     "inlineasm/asmfpcmp.py",

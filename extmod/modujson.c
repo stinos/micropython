@@ -32,6 +32,10 @@
 #include "py/runtime.h"
 #include "py/stream.h"
 
+#if MICROPY_FLOAT_IMPL == MICROPY_FLOAT_IMPL_DOUBLE
+#include <math.h> // for INFINITY
+#endif
+
 #if MICROPY_PY_UJSON
 
 STATIC mp_obj_t mod_ujson_dump(mp_obj_t obj, mp_obj_t stream) {
@@ -186,7 +190,33 @@ STATIC mp_obj_t mod_ujson_load(mp_obj_t stream_obj) {
                 S_NEXT(s);
                 next = mp_obj_new_str(vstr.buf, vstr.len);
                 break;
+            #if MICROPY_FLOAT_IMPL == MICROPY_FLOAT_IMPL_DOUBLE
+            case 'N':
+                if (S_CUR(s) == 'a' && S_NEXT(s) == 'N') {
+                    S_NEXT(s);
+                    next = mp_obj_new_float(MICROPY_FLOAT_C_FUN(nan)(""));
+                } else {
+                    goto fail;
+                }
+                break;
+            case 'I':
+                if (S_CUR(s) == 'n' && S_NEXT(s) == 'f' && S_NEXT(s) == 'i' && S_NEXT(s) == 'n' && S_NEXT(s) == 'i' && S_NEXT(s) == 't' && S_NEXT(s) == 'y') {
+                    S_NEXT(s);
+                    next = mp_obj_new_float(INFINITY);
+                } else {
+                    goto fail;
+                }
+                break;
+            #endif
             case '-':
+                #if MICROPY_FLOAT_IMPL == MICROPY_FLOAT_IMPL_DOUBLE
+                if (S_CUR(s) == 'I' && S_NEXT(s) == 'n' && S_NEXT(s) == 'f' && S_NEXT(s) == 'i' && S_NEXT(s) == 'n' && S_NEXT(s) == 'i' && S_NEXT(s) == 't' && S_NEXT(s) == 'y') {
+                    S_NEXT(s);
+                    next = mp_obj_new_float(-INFINITY);
+                    break;
+                }
+                MP_FALLTHROUGH
+                #endif
             case '0':
             case '1':
             case '2':
