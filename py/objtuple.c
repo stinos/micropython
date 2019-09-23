@@ -39,7 +39,7 @@
 
 void mp_obj_tuple_print(const mp_print_t *print, mp_obj_t o_in, mp_print_kind_t kind) {
     mp_obj_tuple_t *o = MP_OBJ_TO_PTR(o_in);
-    if (MICROPY_PY_UJSON && kind == PRINT_JSON) {
+    if (MICROPY_PY_UJSON && (kind & PRINT_JSON)) {
         mp_print_str(print, "[");
     } else {
         mp_print_str(print, "(");
@@ -51,7 +51,7 @@ void mp_obj_tuple_print(const mp_print_t *print, mp_obj_t o_in, mp_print_kind_t 
         }
         mp_obj_print_helper(print, o->items[i], kind);
     }
-    if (MICROPY_PY_UJSON && kind == PRINT_JSON) {
+    if (MICROPY_PY_UJSON && (kind & PRINT_JSON)) {
         mp_print_str(print, "]");
     } else {
         if (o->len == 1) {

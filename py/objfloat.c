@@ -109,6 +109,28 @@ typedef uint32_t mp_float_uint_t;
 STATIC void float_print(const mp_print_t *print, mp_obj_t o_in, mp_print_kind_t kind) {
     (void)kind;
     mp_float_t o_val = mp_obj_float_get(o_in);
+#if MICROPY_PY_UJSON_ALLOWNAN
+    if (kind & PRINT_JSON) {
+        if (isnan(o_val)) {
+            if (kind & PRINT_JSON_ALLOW_NAN) {
+                print->print_strn(print->data, "NaN", 3);
+                return;
+            } else {
+                mp_raise_ValueError("Out of range float values are not JSON compliant");
+            }
+        } else if (isinf(o_val)) {
+            if (!(kind & PRINT_JSON_ALLOW_NAN)) {
+                mp_raise_ValueError("Out of range float values are not JSON compliant");
+            }
+            if (signbit(o_val)) {
+                print->print_strn(print->data, "-Infinity", 9);
+            } else {
+                print->print_strn(print->data, "Infinity", 8);
+            }
+            return;
+        }
+    }
+#endif
 #if MICROPY_FLOAT_IMPL == MICROPY_FLOAT_IMPL_FLOAT
     char buf[16];
     #if MICROPY_OBJ_REPR == MICROPY_OBJ_REPR_C

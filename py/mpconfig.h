@@ -1260,6 +1260,14 @@ typedef double mp_float_t;
 #define MICROPY_PY_UJSON (0)
 #endif
 
+// Provide CPython compatibility for nan/inf: allow loading the strings,
+// and provide an allow_nan keyword arg for dump()/dumps() specifying
+// whether they can be serialized (the default, JavaScript style)
+// or an exception is raised instead (strict JSON compliance).
+#ifndef MICROPY_PY_UJSON_ALLOWNAN
+#define MICROPY_PY_UJSON_ALLOWNAN (0)
+#endif
+
 #ifndef MICROPY_PY_URE
 #define MICROPY_PY_URE (0)
 #endif

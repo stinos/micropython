@@ -34,22 +34,57 @@
 
 #if MICROPY_PY_UJSON
 
+#if MICROPY_PY_UJSON_ALLOWNAN
+#include <math.h> // For INFINITY
+
+STATIC mp_print_kind_t get_print_kind(mp_map_t *kw_args) {
+    mp_map_elem_t *allow_nan = mp_map_lookup(kw_args, MP_OBJ_NEW_QSTR(MP_QSTR_allow_nan), MP_MAP_LOOKUP);
+    if (allow_nan == NULL || mp_obj_is_true(allow_nan->value)) {
+        return PRINT_JSON | PRINT_JSON_ALLOW_NAN;
+    }
+    return PRINT_JSON;
+}
+
+STATIC mp_obj_t mod_ujson_dump(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+    (void) n_args;
+    mp_obj_t obj = pos_args[0];
+    mp_obj_t stream = pos_args[1];
+    const mp_print_kind_t print_kind = get_print_kind(kw_args);
+#else
 STATIC mp_obj_t mod_ujson_dump(mp_obj_t obj, mp_obj_t stream) {
+    const mp_print_kind_t print_kind = PRINT_JSON;
+#endif
     mp_get_stream_raise(stream, MP_STREAM_OP_WRITE);
     mp_print_t print = {MP_OBJ_TO_PTR(stream), mp_stream_write_adaptor};
-    mp_obj_print_helper(&print, obj, PRINT_JSON);
+    mp_obj_print_helper(&print, obj, print_kind);
     return mp_const_none;
 }
+#if MICROPY_PY_UJSON_ALLOWNAN
+STATIC MP_DEFINE_CONST_FUN_OBJ_KW(mod_ujson_dump_obj, 2, mod_ujson_dump);
+#else
 STATIC MP_DEFINE_CONST_FUN_OBJ_2(mod_ujson_dump_obj, mod_ujson_dump);
+#endif
 
+#if MICROPY_PY_UJSON_ALLOWNAN
+STATIC mp_obj_t mod_ujson_dumps(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+    (void) n_args;
+    mp_obj_t obj = pos_args[0];
+    const mp_print_kind_t print_kind = get_print_kind(kw_args);
+#else
 STATIC mp_obj_t mod_ujson_dumps(mp_obj_t obj) {
+    const mp_print_kind_t print_kind = PRINT_JSON;
+#endif
     vstr_t vstr;
     mp_print_t print;
     vstr_init_print(&vstr, 8, &print);
-    mp_obj_print_helper(&print, obj, PRINT_JSON);
+    mp_obj_print_helper(&print, obj, print_kind);
     return mp_obj_new_str_from_vstr(&mp_type_str, &vstr);
 }
+#if MICROPY_PY_UJSON_ALLOWNAN
+STATIC MP_DEFINE_CONST_FUN_OBJ_KW(mod_ujson_dumps_obj, 1, mod_ujson_dumps);
+#else
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(mod_ujson_dumps_obj, mod_ujson_dumps);
+#endif
 
 // The function below implements a simple non-recursive JSON parser.
 //
@@ -176,7 +211,34 @@ STATIC mp_obj_t mod_ujson_load(mp_obj_t stream_obj) {
                 S_NEXT(s);
                 next = mp_obj_new_str(vstr.buf, vstr.len);
                 break;
+#if MICROPY_PY_UJSON_ALLOWNAN
+            case 'N':
+                if (S_CUR(s) == 'a' && S_NEXT(s) == 'N') {
+                    S_NEXT(s);
+                    next = mp_obj_new_float(MICROPY_FLOAT_C_FUN(nan)(""));
+                } else {
+                    goto fail;
+                }
+                break;
+            case 'I':
+                if (S_CUR(s) == 'n' && S_NEXT(s) == 'f' && S_NEXT(s) == 'i' && S_NEXT(s) == 'n' &&
+                    S_NEXT(s) == 'i' && S_NEXT(s) == 't' && S_NEXT(s) == 'y') {
+                    S_NEXT(s);
+                    next = mp_obj_new_float(INFINITY);
+                } else {
+                    goto fail;
+                }
+                break;
+#endif
             case '-':
+#if MICROPY_PY_UJSON_ALLOWNAN
+                if (S_CUR(s) == 'I' && S_NEXT(s) == 'n' && S_NEXT(s) == 'f' && S_NEXT(s) == 'i' &&
+                    S_NEXT(s) == 'n' && S_NEXT(s) == 'i' && S_NEXT(s) == 't' && S_NEXT(s) == 'y') {
+                    S_NEXT(s);
+                    next = mp_obj_new_float(-INFINITY);
+                    break;
+                }
+#endif
             case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9': {
                 bool flt = false;
                 vstr_reset(&vstr);

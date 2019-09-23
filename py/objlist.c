@@ -44,7 +44,7 @@ STATIC mp_obj_t list_pop(size_t n_args, const mp_obj_t *args);
 
 STATIC void list_print(const mp_print_t *print, mp_obj_t o_in, mp_print_kind_t kind) {
     mp_obj_list_t *o = MP_OBJ_TO_PTR(o_in);
-    if (!(MICROPY_PY_UJSON && kind == PRINT_JSON)) {
+    if (!(MICROPY_PY_UJSON && (kind & PRINT_JSON))) {
         kind = PRINT_REPR;
     }
     mp_print_str(print, "[");
