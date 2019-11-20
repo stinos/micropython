@@ -46,6 +46,9 @@
 #ifndef M_PI
 #define M_PI (3.14159265358979323846)
 #endif
+#ifndef NAN
+#error NAN macro is not defined
+#endif
 
 typedef struct _mp_obj_float_t {
     mp_obj_base_t base;
@@ -54,6 +57,8 @@ typedef struct _mp_obj_float_t {
 
 const mp_obj_float_t mp_const_float_e_obj = {{&mp_type_float}, (mp_float_t)M_E};
 const mp_obj_float_t mp_const_float_pi_obj = {{&mp_type_float}, (mp_float_t)M_PI};
+const mp_obj_float_t mp_const_float_inf_obj = {{&mp_type_float}, (mp_float_t)INFINITY};
+const mp_obj_float_t mp_const_float_nan_obj = {{&mp_type_float}, (mp_float_t)NAN};
 
 #endif
 
