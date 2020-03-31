@@ -224,6 +224,7 @@ endif
 # source files
 SRC_C += \
 	main.c \
+	pymain.c \
 	loaddynlib.c \
 	gccollect.c \
 	unix_mphal.c \

@@ -6,6 +6,8 @@
 *.pdb
 *.ilk
 *.filters
+*.pyd
+*.dll
 /build/*
 .vs/*
 *.VC.*db

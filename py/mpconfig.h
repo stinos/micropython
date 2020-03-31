@@ -1706,4 +1706,8 @@ typedef double mp_float_t;
 #endif
 #endif
 
+#ifndef API
+#define API
+#endif
+
 #endif // MICROPY_INCLUDED_PY_MPCONFIG_H

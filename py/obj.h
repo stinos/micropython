@@ -593,19 +593,19 @@ struct _mp_obj_type_t {
 };
 
 // Constant types, globally accessible
-extern const mp_obj_type_t mp_type_type;
+API extern const mp_obj_type_t mp_type_type;
 extern const mp_obj_type_t mp_type_object;
 extern const mp_obj_type_t mp_type_NoneType;
-extern const mp_obj_type_t mp_type_bool;
-extern const mp_obj_type_t mp_type_int;
-extern const mp_obj_type_t mp_type_str;
-extern const mp_obj_type_t mp_type_bytes;
-extern const mp_obj_type_t mp_type_bytearray;
-extern const mp_obj_type_t mp_type_memoryview;
-extern const mp_obj_type_t mp_type_float;
-extern const mp_obj_type_t mp_type_complex;
-extern const mp_obj_type_t mp_type_tuple;
-extern const mp_obj_type_t mp_type_list;
+API extern const mp_obj_type_t mp_type_bool;
+API extern const mp_obj_type_t mp_type_int;
+API extern const mp_obj_type_t mp_type_str;
+API extern const mp_obj_type_t mp_type_bytes;
+API extern const mp_obj_type_t mp_type_bytearray;
+API extern const mp_obj_type_t mp_type_memoryview;
+API extern const mp_obj_type_t mp_type_float;
+API extern const mp_obj_type_t mp_type_complex;
+API extern const mp_obj_type_t mp_type_tuple;
+API extern const mp_obj_type_t mp_type_list;
 extern const mp_obj_type_t mp_type_map; // map (the python builtin, not the dict implementation detail)
 extern const mp_obj_type_t mp_type_enumerate;
 extern const mp_obj_type_t mp_type_filter;
@@ -622,15 +622,15 @@ extern const mp_obj_type_t mp_type_super;
 extern const mp_obj_type_t mp_type_gen_wrap;
 extern const mp_obj_type_t mp_type_native_gen_wrap;
 extern const mp_obj_type_t mp_type_gen_instance;
-extern const mp_obj_type_t mp_type_fun_builtin_0;
-extern const mp_obj_type_t mp_type_fun_builtin_1;
-extern const mp_obj_type_t mp_type_fun_builtin_2;
-extern const mp_obj_type_t mp_type_fun_builtin_3;
-extern const mp_obj_type_t mp_type_fun_builtin_var;
+API extern const mp_obj_type_t mp_type_fun_builtin_0;
+API extern const mp_obj_type_t mp_type_fun_builtin_1;
+API extern const mp_obj_type_t mp_type_fun_builtin_2;
+API extern const mp_obj_type_t mp_type_fun_builtin_3;
+API extern const mp_obj_type_t mp_type_fun_builtin_var;
 extern const mp_obj_type_t mp_type_fun_bc;
 extern const mp_obj_type_t mp_type_module;
-extern const mp_obj_type_t mp_type_staticmethod;
-extern const mp_obj_type_t mp_type_classmethod;
+API extern const mp_obj_type_t mp_type_staticmethod;
+API extern const mp_obj_type_t mp_type_classmethod;
 extern const mp_obj_type_t mp_type_property;
 extern const mp_obj_type_t mp_type_stringio;
 extern const mp_obj_type_t mp_type_bytesio;
@@ -641,7 +641,7 @@ extern const mp_obj_type_t mp_type_polymorph_iter;
 extern const mp_obj_type_t mp_type_BaseException;
 extern const mp_obj_type_t mp_type_ArithmeticError;
 extern const mp_obj_type_t mp_type_AssertionError;
-extern const mp_obj_type_t mp_type_AttributeError;
+API extern const mp_obj_type_t mp_type_AttributeError;
 extern const mp_obj_type_t mp_type_EOFError;
 extern const mp_obj_type_t mp_type_Exception;
 extern const mp_obj_type_t mp_type_GeneratorExit;
@@ -655,13 +655,14 @@ extern const mp_obj_type_t mp_type_MemoryError;
 extern const mp_obj_type_t mp_type_NameError;
 extern const mp_obj_type_t mp_type_NotImplementedError;
 extern const mp_obj_type_t mp_type_OSError;
-extern const mp_obj_type_t mp_type_OverflowError;
-extern const mp_obj_type_t mp_type_RuntimeError;
+extern const mp_obj_type_t mp_type_TimeoutError;
+API extern const mp_obj_type_t mp_type_OverflowError;
+API extern const mp_obj_type_t mp_type_RuntimeError;
 extern const mp_obj_type_t mp_type_StopAsyncIteration;
 extern const mp_obj_type_t mp_type_StopIteration;
 extern const mp_obj_type_t mp_type_SyntaxError;
 extern const mp_obj_type_t mp_type_SystemExit;
-extern const mp_obj_type_t mp_type_TypeError;
+API extern const mp_obj_type_t mp_type_TypeError;
 extern const mp_obj_type_t mp_type_UnicodeError;
 extern const mp_obj_type_t mp_type_ValueError;
 extern const mp_obj_type_t mp_type_ViperTypeError;
@@ -678,9 +679,9 @@ extern const mp_obj_type_t mp_type_ZeroDivisionError;
 #define mp_const_none (MP_OBJ_FROM_PTR(&mp_const_none_obj))
 #define mp_const_false (MP_OBJ_FROM_PTR(&mp_const_false_obj))
 #define mp_const_true (MP_OBJ_FROM_PTR(&mp_const_true_obj))
-extern const struct _mp_obj_none_t mp_const_none_obj;
-extern const struct _mp_obj_bool_t mp_const_false_obj;
-extern const struct _mp_obj_bool_t mp_const_true_obj;
+API extern const struct _mp_obj_none_t mp_const_none_obj;
+API extern const struct _mp_obj_bool_t mp_const_false_obj;
+API extern const struct _mp_obj_bool_t mp_const_true_obj;
 #endif
 
 // Constant objects, globally accessible: b'', (), {}, Ellipsis, NotImplemented, GeneratorExit()
@@ -809,7 +810,7 @@ mp_int_t mp_obj_int_get_checked(mp_const_obj_t self_in);
 mp_uint_t mp_obj_int_get_uint_checked(mp_const_obj_t self_in);
 
 // exception
-#define mp_obj_is_native_exception_instance(o) (mp_obj_get_type(o)->make_new == mp_obj_exception_make_new)
+bool mp_obj_is_native_exception_instance(mp_obj_t o);
 bool mp_obj_is_exception_type(mp_obj_t self_in);
 bool mp_obj_is_exception_instance(mp_obj_t self_in);
 bool mp_obj_exception_match(mp_obj_t exc, mp_const_obj_t exc_type);
@@ -954,7 +955,7 @@ qstr mp_obj_fun_get_name(mp_const_obj_t fun);
 qstr mp_obj_code_get_name(const byte *code_info);
 
 mp_obj_t mp_identity(mp_obj_t self);
-MP_DECLARE_CONST_FUN_OBJ_1(mp_identity_obj);
+API MP_DECLARE_CONST_FUN_OBJ_1(mp_identity_obj);
 mp_obj_t mp_identity_getiter(mp_obj_t self, mp_obj_iter_buf_t *iter_buf);
 
 // module

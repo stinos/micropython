@@ -516,6 +516,10 @@ mp_obj_t mp_obj_new_exception_msg_vlist(const mp_obj_type_t *exc_type, mp_rom_er
     return mp_obj_exception_make_new(exc_type, 1, 0, &arg);
 }
 
+bool mp_obj_is_native_exception_instance(mp_obj_t o) {
+    return mp_obj_get_type(o)->make_new == mp_obj_exception_make_new;
+}
+
 // return true if the given object is an exception type
 bool mp_obj_is_exception_type(mp_obj_t self_in) {
     if (mp_obj_is_type(self_in, &mp_type_type)) {

@@ -1,4 +1,4 @@
-image: Visual Studio 2013
+image: Visual Studio 2017
 clone_depth: 1
 skip_tags: true
 
@@ -24,6 +24,7 @@ before_build:
     <?xml version="1.0" encoding="utf-8"?>
     <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
       <Target Name="Build">
+        <MsBuild Projects="ports\windows\micropythoncore.vcxproj"/>
         <MsBuild BuildInParallel="True" Projects="mpy-cross\mpy-cross.vcxproj;ports\windows\micropython.vcxproj"/>
       </Target>
     </Project>

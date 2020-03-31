@@ -1,5 +1,110 @@
 [![CI badge](https://github.com/micropython/micropython/workflows/unix%20port/badge.svg)](https://github.com/micropython/micropython/actions?query=branch%3Amaster+event%3Apush) [![Coverage badge](https://coveralls.io/repos/micropython/micropython/badge.png?branch=master)](https://coveralls.io/r/micropython/micropython?branch=master)
 
+The (windows-)pyd branch of MicroPython
+=======================================
+This fork of MicroPython (original readme below) allows building and importing
+of native modules in a CPython-like way: `import <module_name>` will consider
+the dynamic library `<module_name>.pyd` on windows or `<module_name>.so` on unix
+for import (in case `<module_name>.py` is not found), load it, and call it's
+`init_<module_name>()` function which should return a `mp_obj_module_t*`,
+which is then added to the scope.
+
+This fork gets  regularly rebased on the upstream.
+
+**Example for the unix port**
+- create a file mymodule.c with the following content
+``` C
+#include "py/runtime.h"
+
+static mp_obj_t foo() {
+  return MP_OBJ_NEW_QSTR(qstr_from_str("hello from foo"));
+}
+static MP_DEFINE_CONST_FUN_OBJ_0(foo_obj, foo);
+
+mp_obj_module_t *init_mymodule() {
+  mp_obj_t module = mp_obj_new_module(qstr_from_str("mymodule"));
+  mp_store_attr(module, qstr_from_str("foo"), MP_OBJ_FROM_PTR(&foo_obj));
+  return module;
+}
+```
+- set a shell variable UPYDIR to the location of this repository and build MicroPython
+```
+export UPYDIR=/path/to/micropython
+make -C $UPYDIR/ports/unix
+```
+- build the module and place it in the default search path
+```
+gcc -fPIC -I$UPYDIR -I$UPYDIR/ports/unix -I$UPYDIR/ports/unix/build -c mymodule.c -o mymodule.o
+mkdir -p ~/.micropython/lib
+gcc -shared -o ~/.micropython/lib/mymodule.so mymodule.o
+```
+- run micropython and import the module
+```
+$UPYDIR/ports/unix/micropython
+>>> import mymodule
+>>> mymodule.foo()
+'hello from foo'
+```
+
+**Example for the windows port**
+
+When using project files import [extmodule.props](https://github.com/stinos/micropython/blob/windows-pyd/ports/windows/msvc/extmodule.props) to get all options set correctly. Alternatively, here's a commandline sample:
+- create a file mymodule.c with the following content
+``` C
+#include "py/runtime.h"
+
+static mp_obj_t foo(void) {
+  return MP_OBJ_NEW_QSTR(qstr_from_str("hello from foo"));
+}
+
+__declspec(dllexport) mp_obj_module_t *init_mymodule() {
+  mp_obj_t module = mp_obj_new_module(qstr_from_str("mymodule"));
+  //MP_DEFINE_CONST_FUN_OBJ_0 won't compile since mp_type_fun_builtin_0 is
+  //dynamically imported so create the function on the heap instead.
+  mp_obj_fun_builtin_fixed_t *foo_obj = m_new_obj(mp_obj_fun_builtin_fixed_t);
+  foo_obj->base.type = &mp_type_fun_builtin_0;
+  foo_obj->fun._0 = foo;
+  mp_store_attr(module, qstr_from_str("foo"), MP_OBJ_FROM_PTR(foo_obj));
+  return module;
+}
+```
+- set a shell variable UPYDIR to the location of this repository and build MicroPython
+```
+$UPYDIR='/path/to/micropython'
+msbuild $UPYDIR/ports/windows/micropythoncore.vcxproj
+msbuild $UPYDIR/ports/windows/micropython.vcxproj
+```
+- build the module
+```
+cl /c /I$UPYDIR /I$UPYDIR/ports/windows /I$UPYDIR/ports/windows/msvc /I$UPYDIR/ports/windows/build mymodule.c
+link /DLL /OUT:mymodule_d.pyd $UPYDIR/ports/windows/build/Debugx64/micropythoncore.lib mymodule.obj
+```
+- run micropython and import the module
+```
+$UPYDIR/ports/windows/micropython
+>>> import mymodule
+>>> mymodule.foo()
+'hello from foo'
+```
+
+**Other examples**
+
+The [micropython-wrap repository](https://github.com/stinos/micropython-wrap) has a sample module, Makefile and VS/msbuild project files.
+
+**Note on module search path**
+
+On unix `dlopen()` is used to load libraries so it uses a different search path than what MicroPython uses to find modules. This isn't a problem when full paths are passed
+to `dlopen()` which is normally the case, except when MicroPython finds the .so file in
+the current directory for instance: to make that work use `LD_LIBRARY_PATH=$(pwd)` to have the loader
+find the .so file in the current directory.
+
+On windows the current directory is automatically searched for dynamic libraries so no problem there.
+
+**Note on module names**
+
+The CPython naming scheme is followed on windows so when `_DEBUG` is defined MicroPython looks for
+`<module_name>_d.pyd` instead of `<module_name>.pyd`.
+
 The MicroPython project
 =======================
 <p align="center">

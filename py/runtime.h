@@ -58,8 +58,8 @@ typedef struct _mp_arg_t {
 } mp_arg_t;
 
 // Tables mapping operator enums to qstrs, defined in objtype.c
-extern const byte mp_unary_op_method_name[];
-extern const byte mp_binary_op_method_name[];
+API extern const byte mp_unary_op_method_name[];
+API extern const byte mp_binary_op_method_name[];
 
 void mp_init(void);
 void mp_deinit(void);

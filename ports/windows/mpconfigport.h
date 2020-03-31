@@ -127,9 +127,6 @@
 // VFS stat functions should return time values relative to 1970/1/1
 #define MICROPY_EPOCH_IS_1970       (1)
 
-extern const struct _mp_print_t mp_stderr_print;
-extern struct _mp_handle_exception_t mp_handle_exception;
-
 #ifdef _MSC_VER
 #define MICROPY_GCREGS_SETJMP       (1)
 #define MICROPY_USE_INTERNAL_PRINTF (0)
@@ -144,6 +141,19 @@ extern struct _mp_handle_exception_t mp_handle_exception;
 
 #define MICROPY_PORT_INIT_FUNC      init()
 #define MICROPY_PORT_DEINIT_FUNC    deinit()
+
+#ifdef _MSC_VER
+#ifdef MICROPY_DLLEXPORT
+#define API __declspec(dllexport)
+#else
+#define API __declspec(dllimport)
+#endif
+#else
+#define API
+#endif
+
+extern const struct _mp_print_t mp_stderr_print;
+API extern struct _mp_handle_exception_t mp_handle_exception;
 
 // type definitions for the specific machine
 

@@ -366,6 +366,10 @@ mp_obj_t mp_obj_instance_make_new(const mp_obj_type_t *self, size_t n_args, size
     return MP_OBJ_FROM_PTR(o);
 }
 
+bool mp_obj_is_instance_type(const mp_obj_type_t *type) {
+    return (type)->make_new == mp_obj_instance_make_new;
+}
+
 // Qstrs for special methods are guaranteed to have a small value, so we use byte
 // type to represent them.
 const byte mp_unary_op_method_name[MP_UNARY_OP_NUM_RUNTIME] = {
