@@ -36,6 +36,7 @@ SRC_C = \
 	ports/unix/modmachine.c \
 	ports/unix/modtime.c \
 	ports/unix/gccollect.c \
+	ports/windows/msvc/loaddynlib.c \
 	windows_mphal.c \
 	realpath.c \
 	init.c \

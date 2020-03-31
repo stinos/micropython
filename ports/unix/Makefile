@@ -106,6 +106,9 @@ LDFLAGS += $(LDFLAGS_MOD) $(LDFLAGS_ARCH) -lm $(LDFLAGS_EXTRA)
 # Flags to link with pthread library
 LIBPTHREAD = -lpthread
 
+# Flags for windows-pyd branch: link with dl lib and export symbols
+LDFLAGS += -ldl -rdynamic
+
 ifeq ($(MICROPY_FORCE_32BIT),1)
 # Note: you may need to install i386 versions of dependency packages,
 # starting with linux-libc-dev:i386
@@ -221,6 +224,7 @@ endif
 # source files
 SRC_C += \
 	main.c \
+	loaddynlib.c \
 	gccollect.c \
 	unix_mphal.c \
 	mpthreadport.c \
