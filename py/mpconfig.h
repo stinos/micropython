@@ -1065,6 +1065,11 @@ typedef time_t mp_timestamp_t;
 #define MICROPY_MODULE_FROZEN (MICROPY_MODULE_FROZEN_STR || MICROPY_MODULE_FROZEN_MPY)
 #endif
 
+// Whether loading of imported dynamic libraries is supported
+#ifndef MICROPY_MODULE_LOADDYNLIB
+#define MICROPY_MODULE_LOADDYNLIB (0)
+#endif
+
 // Whether you can override builtins in the builtins module
 #ifndef MICROPY_CAN_OVERRIDE_BUILTINS
 #define MICROPY_CAN_OVERRIDE_BUILTINS (MICROPY_CONFIG_ROM_LEVEL_AT_LEAST_EXTRA_FEATURES)

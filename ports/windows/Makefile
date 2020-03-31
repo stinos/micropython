@@ -66,6 +66,7 @@ SRC_C = \
 	ports/unix/input.c \
 	ports/unix/modsocket.c \
 	ports/unix/gccollect.c \
+	ports/windows/msvc/loaddynlib.c \
 	windows_mphal.c \
 	realpath.c \
 	init.c \

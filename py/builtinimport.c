@@ -53,6 +53,27 @@
 // Virtual sys.path entry that maps to the frozen modules.
 #define MP_FROZEN_PATH_PREFIX ".frozen/"
 
+#if MICROPY_MODULE_LOADDYNLIB
+// match CPython's native module naming
+#ifdef _WIN32
+#ifdef _DEBUG
+#define PYD_EXT "_d.pyd"
+#else
+#define PYD_EXT ".pyd"
+#endif
+#else
+#define PYD_EXT ".so"
+#endif
+
+extern mp_obj_module_t *mp_load_dynlib(const char *mod_name, vstr_t *name);
+#endif
+
+bool mp_obj_is_package(mp_obj_t module) {
+    mp_obj_t dest[2];
+    mp_load_method_maybe(module, MP_QSTR___path__, dest);
+    return dest[0] != MP_OBJ_NULL;
+}
+
 // Wrapper for mp_import_stat (which is provided by the port, and typically
 // uses mp_vfs_import_stat) to also search frozen modules. Given an exact
 // path to a file or directory (e.g. "foo/bar", foo/bar.py" or "foo/bar.mpy"),
@@ -89,6 +110,18 @@ static mp_import_stat_t stat_file_py_or_mpy(vstr_t *path) {
     stat = stat_path(path);
     if (stat == MP_IMPORT_STAT_FILE) {
         return stat;
+    }
+    #endif
+
+    #if MICROPY_MODULE_LOADDYNLIB
+    #if MICROPY_PERSISTENT_CODE_LOAD
+    vstr_cut_tail_bytes(path, 1);
+    #endif
+    vstr_cut_tail_bytes(path, 3);
+    vstr_add_str(path, PYD_EXT);
+    stat = mp_import_stat(vstr_null_terminated_str(path));
+    if (stat == MP_IMPORT_STAT_FILE) {
+        return MP_IMPORT_STAT_PYD;
     }
     #endif
 
@@ -461,9 +494,16 @@ static mp_obj_t process_import_at_level(qstr full_mod_name, qstr level_mod_name,
     DEBUG_printf("Found path to load: %.*s\n", (int)vstr_len(&path), vstr_str(&path));
 
     // Prepare for loading from the filesystem. Create a new shell module
-    // and register it in sys.modules.  Also make sure we remove it if
+    // and register it in sys.modules, unless it's a pyd because there the
+    // init function will create the module.  Also make sure we remove it if
     // there is any problem below.
+    #if MICROPY_MODULE_LOADDYNLIB
+    if (stat != MP_IMPORT_STAT_PYD) {
+        module_obj = mp_obj_new_module(full_mod_name);
+    }
+    #else
     module_obj = mp_obj_new_module(full_mod_name);
+    #endif
     nlr_jump_callback_node_unregister_module_t ctx;
     ctx.name = full_mod_name;
     nlr_push_jump_callback(&ctx.callback, unregister_module_from_nlr_jump_callback);
@@ -475,7 +515,11 @@ static mp_obj_t process_import_at_level(qstr full_mod_name, qstr level_mod_name,
     // they're -m'ed using a special __main__ submodule in them. (This all
     // apparently is done to not touch the package name itself, which is
     // important for future imports).
+    #if MICROPY_MODULE_LOADDYNLIB
+    if (override_main && stat != MP_IMPORT_STAT_DIR && stat != MP_IMPORT_STAT_PYD) {
+    #else
     if (override_main && stat != MP_IMPORT_STAT_DIR) {
+        #endif
         mp_obj_module_t *o = MP_OBJ_TO_PTR(module_obj);
         mp_obj_dict_store(MP_OBJ_FROM_PTR(o->globals), MP_OBJ_NEW_QSTR(MP_QSTR___name__), MP_OBJ_NEW_QSTR(MP_QSTR___main__));
         #if MICROPY_CPYTHON_COMPAT
@@ -510,6 +554,18 @@ static mp_obj_t process_import_at_level(qstr full_mod_name, qstr level_mod_name,
         }
         // Remove /__init__.py suffix from path.
         path.len = orig_path_len;
+    #if MICROPY_MODULE_LOADDYNLIB
+    } else if (stat == MP_IMPORT_STAT_PYD) {
+        // Dynamic module.
+        DEBUG_printf("%.*s is a dynlib\n", (int)vstr_len(&path), vstr_str(&path));
+        mp_obj_module_t *module_ptr = mp_load_dynlib(qstr_str(full_mod_name), &path);
+        if (module_ptr == NULL) {
+            mp_raise_msg_varg(&mp_type_ImportError, MP_ERROR_TEXT("dynamic module load failed for '%q'"), full_mod_name);
+        }
+        mp_obj_dict_store(MP_OBJ_FROM_PTR(module_ptr->globals), MP_OBJ_NEW_QSTR(MP_QSTR___name__), MP_OBJ_NEW_QSTR(full_mod_name));
+        assert(module_obj == MP_OBJ_NULL);
+        module_obj = MP_OBJ_FROM_PTR(module_ptr);
+    #endif
     } else { // MP_IMPORT_STAT_FILE
         // File -- execute "path.(m)py".
         do_load(MP_OBJ_TO_PTR(module_obj), &path);

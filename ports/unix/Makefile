@@ -123,6 +123,9 @@ LDFLAGS += $(LDFLAGS_MOD) $(LDFLAGS_ARCH) -lm $(LDFLAGS_EXTRA)
 # Flags to link with pthread library
 LIBPTHREAD = -lpthread
 
+# Flags for windows-pyd branch: link with dl lib and export symbols
+LDFLAGS += -ldl -rdynamic
+
 ifeq ($(MICROPY_USE_READLINE),1)
 INC += -I$(TOP)/shared/readline
 CFLAGS += -DMICROPY_USE_READLINE=1
@@ -201,6 +204,7 @@ endif
 # source files
 SRC_C += \
 	main.c \
+	loaddynlib.c \
 	gccollect.c \
 	unix_mphal.c \
 	mpthreadport.c \
