@@ -308,6 +308,7 @@ jobs:
         - arm-none-eabi-gcc --version
       script:
         - git checkout -b pull_request
+        - cat .git/config
         - git checkout master
         - git show -s
         - tools/metrics.py clean bm
