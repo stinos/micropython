@@ -309,7 +309,9 @@ jobs:
       script:
         - git checkout -b pull_request
         - cat .git/config
-        - git checkout master
+        - git fetch origin refs/heads/master:refs/remotes/origin/master
+        - git checkout origin/master
+        - cat .git/config
         - git show -s
         - tools/metrics.py clean bm
         - tools/metrics.py build bm | tee ~/size0 || travis_terminate 1
