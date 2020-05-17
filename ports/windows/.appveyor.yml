@@ -10,16 +10,12 @@ init:
   # Set build version number to commit to be travis-like
 - ps: Update-AppveyorBuild -Version $env:appveyor_repo_commit.substring(0,8)
 
-configuration:
-- Debug
-- Release
-
-platform:
-- x86
-- x64
-
-before_build:
+build_script:
 - ps: |
+    $MicroPythonDir = $env:APPVEYOR_BUILD_FOLDER
+    $Bash = "C:/msys64/usr/bin/bash.exe"
+
+    # Write project file to enable parallel building of projects
     @"
     <?xml version="1.0" encoding="utf-8"?>
     <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -27,51 +23,53 @@ before_build:
         <MsBuild BuildInParallel="True" Projects="mpy-cross\mpy-cross.vcxproj;ports\windows\micropython.vcxproj"/>
       </Target>
     </Project>
-    "@ | Set-Content build.proj
+    "@ | Set-Content (Join-Path $MicroPythonDir "build.proj")
 
-build:
-  project: build.proj
-  parallel: true
-  verbosity: normal
+    function CheckStatus {
+      if ($LASTEXITCODE -ne 0) {
+        throw "$Args exited with code $LASTEXITCODE"
+      }
+    }
 
-test_script:
-- ps: |
-    cd (Join-Path $env:APPVEYOR_BUILD_FOLDER 'tests')
-    & $env:MICROPY_CPYTHON3 run-tests
-    & $env:MICROPY_CPYTHON3 run-tests --via-mpy -d basics float micropython
+    function BuildAndTestMsvc {
+      Write-Host -ForegroundColor Green "Building $Args"
+      cd $MicroPythonDir
+      msbuild build.proj /m "/p:Configuration=$($Args[0]);Platform=$($Args[1]);PyPython=$($env:MICROPY_CPYTHON3)"
+      CheckStatus("build")
+      cd (Join-Path $MicroPythonDir 'tests')
+      & $env:MICROPY_CPYTHON3 run-tests
+      CheckStatus("test")
+      & $env:MICROPY_CPYTHON3 run-tests --via-mpy -d basics float micropython
+      CheckStatus("test via mpy")
+    }
 
-# After the build/test phase for the MSVC build completes,
-# build and test with mingw-w64, release versions only.
-after_test:
-- ps: |
-    if ($env:configuration -eq 'Debug') {
-      return
+    function BuildAndTestMingw {
+      Write-Host -ForegroundColor Green "Building $Args"
+      $env:MSYSTEM = $Args[0]
+      $env:CHERE_INVOKING = 'enabled_from_arguments'
+      cd (Join-Path $MicroPythonDir 'ports/windows')
+      & $Bash -l -c "make -B -j4 V=1 PYTHON=$env:MICROPY_CPYTHON3"
+      CheckStatus "$env:MSYSTEM build"
+      cd (Join-Path $MicroPythonDir 'mpy-cross')
+      # Building of mpy-cross hasn't been fixed across all possible windows/WSL/...
+      # variations and the STRIP step tries to strip mpy-cross whereas that should be
+      # mpy-cross.exe. Workaround for now by skipping actual strip and size commands.
+      & $Bash -l -c "make -B -j4 V=1 STRIP=echo SIZE=echo PYTHON=$env:MICROPY_CPYTHON3"
+      CheckStatus "$env:MSYSTEM build"
+      cd (Join-Path $MicroPythonDir 'tests')
+      $testArgs = @('run-tests')
+      foreach ($skipTest in @('math_fun', 'float2int_double', 'float_parse', 'math_domain_special')) {
+        $testArgs = $testArgs + '-e' + $skipTest
+      }
+      & $env:MICROPY_CPYTHON3 $testArgs
+      CheckStatus "$env:MSYSTEM test"
+      & $env:MICROPY_CPYTHON3 ($testArgs + @('--via-mpy', '-d', 'basics', 'float', 'micropython'))
+      CheckStatus "$env:MSYSTEM test via mpy"
     }
-    $env:MSYSTEM = if ($platform -eq 'x86') {'MINGW32'} else {'MINGW64'}
-    $env:CHERE_INVOKING = 'enabled_from_arguments'
-    cd (Join-Path $env:APPVEYOR_BUILD_FOLDER 'ports/windows')
-    C:\msys64\usr\bin\bash.exe -l -c "make -B -j4 V=1"
-    if ($LASTEXITCODE -ne 0) {
-      throw "$env:MSYSTEM build exited with code $LASTEXITCODE"
-    }
-    cd (Join-Path $env:APPVEYOR_BUILD_FOLDER 'mpy-cross')
-    # Building of mpy-cross hasn't been fixed across all possible windows/WSL/...
-    # variations and the STRIP step tries to strip mpy-cross whereas that should be
-    # mpy-cross.exe. Workaround for now by skipping actual strip and size commands.
-    C:\msys64\usr\bin\bash.exe -l -c "make -B -j4 V=1 STRIP=echo SIZE=echo"
-    if ($LASTEXITCODE -ne 0) {
-      throw "$env:MSYSTEM mpy_cross build exited with code $LASTEXITCODE"
-    }
-    cd (Join-Path $env:APPVEYOR_BUILD_FOLDER 'tests')
-    $testArgs = @('run-tests')
-    foreach ($skipTest in @('math_fun', 'float2int_double', 'float_parse', 'math_domain_special')) {
-      $testArgs = $testArgs + '-e' + $skipTest
-    }
-    & $env:MICROPY_CPYTHON3 $testArgs
-    if ($LASTEXITCODE -ne 0) {
-      throw "$env:MSYSTEM tests exited with code $LASTEXITCODE"
-    }
-    & $env:MICROPY_CPYTHON3 ($testArgs + @('--via-mpy', '-d', 'basics', 'float', 'micropython'))
-    if ($LASTEXITCODE -ne 0) {
-      throw "$env:MSYSTEM mpy-cross tests exited with code $LASTEXITCODE"
-    }
+
+    BuildAndTestMsvc "Debug" "Win32"
+    BuildAndTestMsvc "Release" "Win32"
+    BuildAndTestMsvc "Debug" "x64"
+    BuildAndTestMsvc "Release" "x64"
+    BuildAndTestMingw "MINGW32"
+    BuildAndTestMingw "MINGW64"
