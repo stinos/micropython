@@ -73,3 +73,15 @@ build_script:
     BuildAndTestMsvc "Release" "x64"
     BuildAndTestMingw "MINGW32"
     BuildAndTestMingw "MINGW64"
+
+# Note this relies on building the mingw version after the msvc version,
+# so the former replaces the .exe files built by the latter and we pick those up here.
+artifacts:
+  - path: ports/windows/build/Release*/micropython.exe
+    name: micropython-msvc
+  - path: mpy-cross/build/Release*/mpy-cross.exe
+    name: mpy-cross-msvc
+  - path: ports/windows/micropython.exe
+    name: micropython-mingw
+  - path: mpy-cross/mpy-cross.exe
+    name: mpy-cross-mingw
