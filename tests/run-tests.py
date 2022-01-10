@@ -954,6 +954,8 @@ def run_tests(pyb, tests, args, result_dir, num_threads=1):
         skip_tests.add("float/float_struct_e_doubleprec.py")
         skip_tests.add("float/float_format_ints_doubleprec.py")
         skip_tests.add("float/float_parse_doubleprec.py")
+        skip_tests.add("extmod/json_dumps_float_ex.py")
+        skip_tests.add("extmod/json_loads_float_ex.py")
 
     if not args.unicode:
         skip_tests.add("extmod/json_loads.py")  # tests loading a utf-8 character

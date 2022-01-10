@@ -110,6 +110,19 @@ mp_int_t mp_float_hash(mp_float_t src) {
 static void float_print(const mp_print_t *print, mp_obj_t o_in, mp_print_kind_t kind) {
     (void)kind;
     mp_float_t o_val = mp_obj_float_get(o_in);
+    if (kind == PRINT_JSON) {
+        if (isnan(o_val)) {
+            print->print_strn(print->data, "NaN", 3);
+            return;
+        } else if (isinf(o_val)) {
+            if (signbit(o_val)) {
+                print->print_strn(print->data, "-Infinity", 9);
+            } else {
+                print->print_strn(print->data, "Infinity", 8);
+            }
+            return;
+        }
+    }
     mp_print_float(print, o_val, 'g', PF_FLAG_ALWAYS_DECIMAL, '\0', -1, MP_FLOAT_REPR_PREC);
 }
 
