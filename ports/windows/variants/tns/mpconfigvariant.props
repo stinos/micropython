@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <PyProg>micropython</PyProg>
+  </PropertyGroup>
+  <ItemGroup>
+    <PyExtModSource Include="..\..\extmod\modplatform.c" />
+  </ItemGroup>
+</Project>

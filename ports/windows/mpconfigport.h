@@ -51,7 +51,9 @@
 #define MICROPY_ENABLE_GC           (1)
 #define MICROPY_ENABLE_FINALISER    (1)
 #define MICROPY_ENABLE_PYSTACK      (1)
-#define MICROPY_STACK_CHECK         (1)
+#ifndef MICROPY_STACK_CHECK
+#define MICROPY_STACK_CHECK         (0)
+#endif
 #define MICROPY_MALLOC_USES_ALLOCATED_SIZE (1)
 #define MICROPY_MEM_STATS           (1)
 #define MICROPY_DEBUG_PRINTER       (&mp_stderr_print)

@@ -24,7 +24,7 @@ jobs:
       matrix:
         platform: [x86, x64]
         configuration: [Debug, Release]
-        variant: [dev, standard]
+        variant: [dev, tns]
         visualstudio: ['2017', '2019', '2022']
         include:
         - visualstudio: '2017'
@@ -37,7 +37,7 @@ jobs:
           vs_version: '[17, 18)'
         # trim down the number of jobs in the matrix
         exclude:
-        - variant: standard
+        - variant: tns
           configuration: Debug
         - visualstudio: '2019'
           configuration: Debug
@@ -64,6 +64,20 @@ jobs:
       run: msbuild mpy-cross\mpy-cross.vcxproj -maxcpucount -property:Configuration=${{ matrix.configuration }} -property:Platform=${{ matrix.platform }}
     - name: Update submodules
       run: msbuild ports\windows\micropython.vcxproj -target:UpdateSubmodules -property:Configuration=${{ matrix.configuration }} -property:Platform=${{ matrix.platform }} -property:PyVariant=${{ matrix.variant }}
+    - name: Set custom build options
+      shell: pwsh
+      run: |
+        @'
+        <?xml version="1.0" encoding="utf-8"?> 
+        <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+          <ItemDefinitionGroup>
+            <ClCompile>
+              <!--To make the standard test suite pass.-->
+              <PreprocessorDefinitions>%(PreprocessorDefinitions);MICROPY_STACK_CHECK=1</PreprocessorDefinitions>
+            </ClCompile>
+          </ItemDefinitionGroup>
+        </Project>
+        '@ | Set-Content ports\windows\msvc\user.props
     - name: Build micropython.dll
       run: msbuild ports\windows\micropythoncore.vcxproj -maxcpucount -property:Configuration=${{ matrix.configuration }} -property:Platform=${{ matrix.platform }} -property:PyVariant=${{ matrix.variant }} 
     - name: Build micropython.exe
@@ -98,7 +112,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        variant: [dev, standard]
+        variant: [dev, tns]
         sys: [mingw32, mingw64]
         include:
           - sys: mingw32
@@ -134,7 +148,7 @@ jobs:
     - name: Update submodules
       run: make -C ports/windows VARIANT=${{ matrix.variant }} submodules
     - name: Build micropython.exe
-      run: make -C ports/windows -j2 VARIANT=${{ matrix.variant }}
+      run: make -C ports/windows -j2 VARIANT=${{ matrix.variant }} CFLAGS_EXTRA="-DMICROPY_STACK_CHECK=1"
     - name: Run tests
       id: test
       run: make -C ports/windows test_full VARIANT=${{ matrix.variant }}
