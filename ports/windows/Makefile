@@ -5,7 +5,7 @@ ifdef VARIANT_DIR
 VARIANT ?= $(notdir $(VARIANT_DIR:/=))
 else
 # If not given on the command line, then default to standard.
-VARIANT ?= standard
+VARIANT ?= tns
 VARIANT_DIR ?= variants/$(VARIANT)
 endif
 
