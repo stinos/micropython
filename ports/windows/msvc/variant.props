@@ -3,7 +3,7 @@
   <!-- Define the variant-related properties -->
   <PropertyGroup Condition="'$(PyBuildingMpyCross)' != 'True'">
     <PyVariantscluded>True</PyVariantscluded>
-    <PyVariant Condition="'$(PyVariant)' == ''">standard</PyVariant>
+    <PyVariant Condition="'$(PyVariant)' == ''">tns</PyVariant>
     <PyBuild Condition="'$(PyBuild)' == ''">build-$(PyVariant)</PyBuild>
   </PropertyGroup>
 </Project>
