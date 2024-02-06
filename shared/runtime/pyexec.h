@@ -40,7 +40,7 @@ typedef struct _mp_handle_exception_t {
     mp_handle_exception_fun_t handle;
 } mp_handle_exception_t;
 
-extern struct _mp_handle_exception_t mp_handle_exception;
+API extern struct _mp_handle_exception_t mp_handle_exception;
 
 extern pyexec_mode_kind_t pyexec_mode_kind;
 

@@ -94,6 +94,7 @@
     <ClCompile Include="$(PyBaseDir)mpy-cross\gccollect.c"/>
     <ClCompile Include="$(PyBaseDir)mpy-cross\main.c"/>
     <ClCompile Include="$(PyBaseDir)ports\windows\fmode.c" />
+    <ClCompile Remove="$(PyBaseDir)py\run.c" />
   </ItemGroup>
   <Import Project="$(PyMsvcDir)genhdr.targets" />
   <Import Project="$(CustomPropsFile)" Condition="exists('$(CustomPropsFile)')" />

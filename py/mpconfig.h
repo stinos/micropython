@@ -2549,4 +2549,8 @@ typedef time_t mp_timestamp_t;
 #pragma MPCHECKS mpprint_support_ll
 #endif
 
+#ifndef API
+#define API
+#endif
+
 #endif // MICROPY_INCLUDED_PY_MPCONFIG_H
