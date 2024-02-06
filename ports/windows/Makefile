@@ -24,6 +24,7 @@ FROZEN_MANIFEST ?= variants/manifest.py
 
 # Define main target
 PROG ?= micropython
+DLL_PROG ?= micropythoncore.dll
 
 # qstr definitions (must come before including py.mk)
 QSTR_DEFS += ../unix/qstrdefsport.h
@@ -63,6 +64,7 @@ SRC_C = \
 	shared/libc/printf.c \
 	shared/runtime/gchelper_generic.c \
 	ports/unix/main.c \
+	ports/unix/pymain.c \
 	ports/unix/input.c \
 	ports/unix/modsocket.c \
 	ports/unix/gccollect.c \
@@ -81,6 +83,9 @@ OBJ = $(PY_O) $(addprefix $(BUILD)/, $(SRC_C:.c=.o))
 OBJ += $(addprefix $(BUILD)/, $(SRC_CXX:.cpp=.o))
 OBJ += $(addprefix $(BUILD)/, $(SHARED_SRC_C:.c=.o))
 OBJ += $(addprefix $(BUILD)/, $(LIB_SRC_C:.c=.o))
+
+PROG_DLL_OBJ = $(BUILD)/ports/unix/pymain.o
+DLL_OBJ = $(filter-out $(BPROG_DLL_OBJ), $(OBJ))
 
 ifeq ($(MICROPY_USE_READLINE),1)
 CFLAGS += -DMICROPY_USE_READLINE=1
@@ -110,6 +115,14 @@ CXXFLAGS += $(filter-out -std=gnu99,$(CFLAGS))
 include $(TOP)/py/mkrules.mk
 
 .PHONY: test test_full
+
+# Note this one creates both the dll and the exe using it, since the latter target is defined in
+# mkrules.mk already and we want to keep it as default way to build.
+$(BUILD)/$(DLL_PROG): $(DLL_OBJ) $(PROG_DLL_OBJ)
+	$(ECHO) "LINK $@"
+	$(Q)$(CC) -o $@ $^ $(LIB) $(LDFLAGS) -shared
+	$(ECHO) "LINK $(BUILD)/$(PROG)"
+	$(Q)$(CC) -o $(BUILD)/$(PROG) $(PROG_DLL_OBJ) $(LIB) $(LDFLAGS) -L$(BUILD) -l$(subst .dll,,$(DLL_PROG))
 
 # Note for recent gcc versions like 13.2:
 # - mingw64-x86_64 gcc builds will pass the math_domain_special test

@@ -45,28 +45,32 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="msvc/micropythoncore.props" />
     <Import Project="msvc/common.props" />
     <Import Project="msvc/debug.props" />
+    <Import Project="msvc/application.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="msvc/micropythoncore.props" />
     <Import Project="msvc/common.props" />
     <Import Project="msvc/release.props" />
+    <Import Project="msvc/application.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="msvc/micropythoncore.props" />
     <Import Project="msvc/common.props" />
     <Import Project="msvc/debug.props" />
+    <Import Project="msvc/application.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="msvc/micropythoncore.props" />
     <Import Project="msvc/common.props" />
     <Import Project="msvc/release.props" />
+    <Import Project="msvc/application.props" />
   </ImportGroup>
-  <PropertyGroup Label="UserMacros">
-    <CustomPropsFile Condition="'$(CustomPropsFile)'==''">msvc/user.props</CustomPropsFile>
-    <TargetName>$(PyProg)</TargetName>
-  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile />
     <Link />
@@ -83,34 +87,12 @@
     <ClCompile />
     <Link />
   </ItemDefinitionGroup>
-  <Import Project="msvc/sources.props" />
   <ItemGroup>
-    <ClCompile Include="@(PyCoreSource)" />
-    <ClCompile Include="@(PyExtModSource)" />
-    <ClCompile Include="@(PyThirdPartySource)" />
-    <ClCompile Include="$(PyBaseDir)shared\readline\*.c" />
-    <ClCompile Include="$(PyBaseDir)shared\runtime\gchelper_generic.c" />
-    <ClCompile Include="$(PyBaseDir)ports\windows\*.c" />
-    <ClCompile Include="$(PyBaseDir)ports\windows\msvc\*.c" />
-    <ClCompile Include="$(PyBaseDir)ports\unix\gccollect.c"/>
-    <ClCompile Include="$(PyBaseDir)ports\unix\input.c"/>
-    <ClCompile Include="$(PyBaseDir)ports\unix\main.c"/>
-    <ClCompile Include="$(PyBaseDir)ports\unix\modsocket.c" />
-    <ClCompile Include="$(PyVariantDir)*.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="@(PyCoreInclude)" />
-    <ClInclude Include="@(PyExtModInclude)" />
-    <ClInclude Include="$(PyBaseDir)ports\windows\*.h" />
-    <ClInclude Include="$(PyBaseDir)ports\windows\msvc\*.h" />
+    <ClCompile Include="..\unix\pymain.c" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="micropython.rc" />
   </ItemGroup>
-  <Import Project="msvc/genhdr.targets" />
-  <Import Project="$(CustomPropsFile)" Condition="exists('$(CustomPropsFile)')" />
-  <Target Name="GenerateMicroPythonSources" BeforeTargets="BuildGenerateSources" DependsOnTargets="UpdateSubmodulesIfInIDE;GenerateHeaders;FreezeModules">
-  </Target>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

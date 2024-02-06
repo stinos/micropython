@@ -80,6 +80,12 @@ long heap_size = 1024 * 1024 * (sizeof(mp_uint_t) / 4);
 #error "The unix port requires MICROPY_PY_SYS_ARGV=1"
 #endif
 
+#if defined(MICROPY_UNIX_COVERAGE)
+int handle_uncaught_exception(mp_obj_base_t *exc);
+int execute_from_lexer(int source_kind, const void *source, mp_parse_input_kind_t input_kind, bool is_repl);
+int cmain(int argc, char **argv);
+#endif
+
 static void stderr_print_strn(void *env, const char *str, size_t len) {
     (void)env;
     ssize_t ret;
@@ -100,7 +106,7 @@ mp_handle_exception_t mp_handle_exception = {NULL, print_exception};
 // If exc is SystemExit, return value where FORCED_EXIT bit set,
 // and lower 8 bits are SystemExit value. For all other exceptions,
 // return 1.
-static int handle_uncaught_exception(mp_obj_base_t *exc) {
+int handle_uncaught_exception(mp_obj_base_t *exc) {
     // check for SystemExit
     if (mp_obj_is_subclass_fast(MP_OBJ_FROM_PTR(exc->type), MP_OBJ_FROM_PTR(&mp_type_SystemExit))) {
         // None is an exit value of 0; an int is its value; anything else is 1
@@ -127,7 +133,7 @@ static int handle_uncaught_exception(mp_obj_base_t *exc) {
 // Returns standard error codes: 0 for success, 1 for all other errors,
 // except if FORCED_EXIT bit is set then script raised SystemExit and the
 // value of the exit is in the lower 8 bits of the return value
-static int execute_from_lexer(int source_kind, const void *source, mp_parse_input_kind_t input_kind, bool is_repl) {
+int execute_from_lexer(int source_kind, const void *source, mp_parse_input_kind_t input_kind, bool is_repl) {
     mp_hal_set_interrupt_char(CHAR_CTRL_C);
 
     nlr_buf_t nlr;
@@ -487,7 +493,7 @@ static void sys_set_excecutable(char *argv0) {
 
 MP_NOINLINE int main_(int argc, char **argv);
 
-int main(int argc, char **argv) {
+int cmain(int argc, char **argv) {
     #if MICROPY_PY_THREAD
     mp_thread_init();
     #endif

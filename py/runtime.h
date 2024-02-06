@@ -95,8 +95,8 @@ typedef struct _nlr_jump_callback_node_call_function_1_t {
 } nlr_jump_callback_node_call_function_1_t;
 
 // Tables mapping operator enums to qstrs, defined in objtype.c
-extern const byte mp_unary_op_method_name[];
-extern const byte mp_binary_op_method_name[];
+API extern const byte mp_unary_op_method_name[];
+API extern const byte mp_binary_op_method_name[];
 
 void mp_init(void);
 void mp_deinit(void);

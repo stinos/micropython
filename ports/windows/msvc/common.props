@@ -1,22 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <!-- Variant support. For compatibility with how it works for the other ports, this gets imported
+  <!-- Common configuration used by micropython dll and application -->
+  <!-- Note about variant support: for compatibility with how it works for the other ports, this gets imported
        early so variants cannot override build options like the ones specified in the rest of this file.
        Use CustomPropsFile (see the .vcxproj file) for that. -->
-  <PropertyGroup Condition="'$(PyBuildingMpyCross)' != 'True'">
-    <PyVariant Condition="'$(PyVariant)' == ''">standard</PyVariant>
-    <PyBuild Condition="'$(PyBuild)' == ''">build-$(PyVariant)</PyBuild>
-    <PyProg Condition="'$(PyProg)' == ''">micropython</PyProg>
-  </PropertyGroup>
   <ImportGroup Label="PropertySheets">
+    <Import Project="variant.props" Condition="'$(PyVariantscluded)' != 'True' And '$(PyBuildingMpyCross)' != 'True'"/>
     <Import Project="paths.props" Condition="'$(PyPathsIncluded)' != 'True'"/>
     <Import Condition="'$(PyBuildingMpyCross)' != 'True'" Project="$(PyVariantDir)mpconfigvariant.props"/>
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <OutDir>$(PyOutDir)</OutDir>
-    <IntDir>$(PyIntDir)</IntDir>
-    <PyFileCopyCookie>$(PyBuildDir)copycookie$(Configuration)$(Platform)</PyFileCopyCookie>
+    <IntDir>$(PyIntDir)$(ProjectName)\</IntDir>
+    <PyFileCopyCookie>$(PyBuildDir)copycookie$(Configuration)$(Platform)$(ProjectName)</PyFileCopyCookie>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <ItemDefinitionGroup>
@@ -34,17 +31,19 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
       <AdditionalDependencies>Bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ImportLibrary>$(Outdir)$(ProjectName).lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <PyOutputFiles Include="$(TargetPath)">
       <Destination>$(PyTargetDir)%(FileName)%(Extension)</Destination>
     </PyOutputFiles>
-    <PyCookieFiles Include="$(PyBuildDir)copycookie*" Exclude="$(PyFileCopyCookie)"/>
+    <PyCookieFiles Include="$(PyBuildDir)copycookie*$(ProjectName)" Exclude="$(PyFileCopyCookie)"/>
     <QstrDependencies Include="$(PyVariantDir)mpconfigvariant.h"/>
   </ItemGroup>
 
-  <!-- Helper for getting resulting executable path since it depends on other properties. -->
+  <!-- Helper for getting resulting executable path since it depends on other properties.
+       Note: recent msbuild versions don't need this, equivalent is msbuild -getProperty:TargetPath. -->
   <Target Name="ShowTargetPath">
     <Message Text="$(TargetPath)" Importance="high"/>
   </Target>
