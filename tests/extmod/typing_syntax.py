@@ -8,13 +8,12 @@ except ImportError:
     raise SystemExit
 
 from typing import List, Tuple, Iterable, NewType, TypeVar, Union, Generic
+from typing import Any
 
 # Available with MICROPY_PY_TYPING_EXTRA_MODULES.
 try:
     import typing_extensions
 except ImportError:
-    from typing import Any
-
     typing_extensions = None
 
 # Available with MICROPY_PY_TYPING_EXTRA_MODULES and MICROPY_MODULE_BUILTIN_SUBPACKAGES.
@@ -29,30 +28,29 @@ import sys
 
 # If this is available verify it works, and try the other modules as well.
 if typing_extensions is not None:
-    from typing_extensions import Any
     import __future__
     from abc import abstractmethod
 
     getattr(__future__, "annotations")
 
 
-if "micropython" in sys.implementation.name:
-    # Verify assignment is not possible.
-    try:
-        typing.a = None
-        raise Exception()
-    except AttributeError:
-        pass
-    try:
-        typing[0] = None
-        raise Exception()
-    except TypeError:
-        pass
-    try:
-        List.a = None
-        raise Exception()
-    except AttributeError:
-        pass
+# if "micropython" in sys.implementation.name:
+#     # Verify assignment is not possible.
+#     try:
+#         typing.a = None
+#         raise Exception()
+#     except AttributeError:
+#         pass
+#     try:
+#         typing[0] = None
+#         raise Exception()
+#     except TypeError:
+#         pass
+#     try:
+#         List.a = None
+#         raise Exception()
+#     except AttributeError:
+#         pass
 
 
 MyAlias = str

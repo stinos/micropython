@@ -319,8 +319,8 @@ try:
     from collections.abc import Callable
 except ImportError:
     print("- [ ] FIXME: from collections.abc import Callable")
+    from typing import Callable  # Workaround for test
 
-from typing import Callable  # Workaround for test
 from typing import TypeVar, ParamSpec
 
 T = TypeVar("T")
@@ -355,7 +355,7 @@ from typing import get_origin
 
 # FIXME: - cpy_diff - get_origin() unsupported, or always returns None
 if not get_origin(str) is None:
-    print("- [ ] FIXME: cpy_diff - get_origin(str) should be None")
+    print("- [ ] FIXME: document cpy_diff - get_origin(str) should be None")
 # assert get_origin(Dict[str, int]) is dict
 # assert get_origin(Union[int, str]) is Union
 
@@ -365,7 +365,7 @@ from typing import get_args, Dict, Union
 
 # FIXME: - cpy_diff - get_args() unsupported, or always returns ()
 if not get_args(int) == ():
-    print("- [ ] FIXME: cpy_diff - get_args(int) should be ()")
+    print("- [ ] FIXME: document cpy_diff - get_args(int) should be ()")
 
 # assert get_args(Dict[int, str]) == (int, str), "get_args(Dict[int, str]) should be (int, str)"
 # assert get_args(Union[int, str]) == (int, str), "get_args(Union[int, str]) should be (int, str)"

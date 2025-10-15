@@ -23,7 +23,7 @@ try:
     class Derived_1(Base_1):  # Error: Cannot inherit from final class "Base"
         ...
 except Exception:
-    print("Expected: Cannot inherit from final class 'Base'")
+    print("- [ ] FIXME: Cannot inherit from final class 'Base'")
 
 
 # -----------------
@@ -75,10 +75,9 @@ except Exception:
 
 # -------------------
 
-# FIXME: Difference - Final cannot be used with container types
 try:
     x: List[Final[int]] = []  # Error!
-    print("-[ ] FIXME: Final cannot be used with container types")
+    print("- [ ] FIXME: document cpydiff : Final cannot be used with container types")
 except Exception:
     print("Expected: Final cannot be used with container types")
 

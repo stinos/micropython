@@ -144,7 +144,7 @@ def f():
 # FIXME: cpy_diff - MicroPython does not raise NameError at runtime
 # try:
 #     x: NonexistentName  # Error!
-#     print("-[ ] FIXME: Expected NameError")
+#     print("- [ ] FIXME: Expected NameError")
 # except NameError:
 #     print("Expected NameError:")
 

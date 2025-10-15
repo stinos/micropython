@@ -155,7 +155,7 @@ try:
         def close(self) -> None:
             ...
 except Exception as e:
-    print("-[ ] FIXME: Difference or Crash - multiple bases have instance lay-out conflict:", e)
+    print("- [ ] FIXME: Difference or Crash - multiple bases have instance lay-out conflict:", e)
 
 
 class SupportsClose_2(Protocol):
@@ -169,7 +169,7 @@ try:
     class SizedAndClosable_2(Sized, SupportsClose_2, Protocol):
         pass
 except Exception as e:
-    print("-[ ] FIXME: Difference or Crash - multiple bases have instance lay-out conflict:", e)
+    print("- [ ] FIXME: Difference or Crash - multiple bases have instance lay-out conflict:", e)
 
 print("Generic protocols")
 # https://peps.python.org/pep-0544/#generic-protocols
@@ -330,7 +330,7 @@ fun(Concrete)  # OK
 # FIXME: Should Throw: Can't instantiate protocol with abstract methods -
 # try:
 #     fun(Proto)  # Error # type: ignore
-#     print("-[ ] FIXME: Should Throw: Can't instantiate protocol with abstract methods")
+#     print("- [ ] FIXME: Should Throw: Can't instantiate protocol with abstract methods")
 # except Exception:
 #     print("Expected: Can't instantiate protocol with abstract methods")
 

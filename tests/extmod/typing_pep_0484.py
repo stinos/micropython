@@ -92,7 +92,7 @@ T = TypeVar("T")
 #             return self.value
 #
 # except Exception as e:
-#     print("-[ ] FIXME: Difference - Generic[T] base class unsupported:", e)
+#     print("- [ ] FIXME: Difference - Generic[T] base class unsupported:", e)
 
 
 # Union/Optional examples
@@ -119,7 +119,7 @@ try:
     v = UserId(5)
     print("NewType UserId runtime:", v, type(v))
 except Exception as e:
-    print("-[ ] FIXME: Difference or Crash - NewType runtime issue:", e)
+    print("- [ ] FIXME: Difference or Crash - NewType runtime issue:", e)
 
 print("TYPE_CHECKING guard")
 
@@ -182,6 +182,9 @@ print("overload func for int:", func(1))
 # Cast example: at runtime cast returns the value
 from typing import cast
 
-print("cast runtime identity:", cast(str, 123))
+if cast(str, 123) == 123:
+    print("cast runtime works as identity function")
+else:
+    print("- [ ] FIXME: Difference - cast runtime does not work as identity function")
 
 print("-----")
