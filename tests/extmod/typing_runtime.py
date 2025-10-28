@@ -47,8 +47,7 @@ from typing import Callable, Self
 
 
 class BaseClass:
-    def register(self, callback: Callable[[Self], None]) -> None:
-        ...
+    def register(self, callback: Callable[[Self], None]) -> None: ...
 
 
 def cb(x):
@@ -76,8 +75,7 @@ from typing import Protocol
 
 
 class Adder(Protocol):
-    def add(self, x, y):
-        ...
+    def add(self, x, y): ...
 
 
 class IntAdder:
@@ -96,6 +94,52 @@ def add(adder: Adder) -> None:
 
 add(IntAdder())
 add(FloatAdder())
+
+print("inheriting from typing types")
+from typing import Generic, TypeVar
+
+
+class TestClass1(Protocol):
+    def __init__(self, attr):
+        self._attr = attr
+
+    def __call__(self):
+        return self._attr
+
+
+try:
+
+    class TestClass2(Protocol, Callable):
+        def __init__(self, attr):
+            self._attr = attr
+
+        def __call__(self):
+            return self._attr
+
+except Exception as e:
+    print("- [ ] FIXME: multiple typing bases not supported:", e)
+
+
+T = TypeVar("T")
+
+try:
+
+    class TestClass3(Generic[T]):
+        _attr: T
+
+        def __init__(self, attr: T):
+            self._attr = attr
+
+except Exception as e:
+    print("- [ ] FIXME: deriving Generic[T] not supported:", e)
+
+try:
+    assert TestClass1(34)() == 34
+    assert TestClass2(34)._attr == 34
+    assert TestClass3(34)._attr == 34
+except Exception as e:
+    print("- [ ] FIXME: class inheriting typing classes cannot be instantiated:", e)
+
 
 print("typing.NewType")
 
@@ -163,8 +207,7 @@ print("typing.LiteralString")
 from typing import LiteralString
 
 
-def run_query(sql: LiteralString) -> None:
-    ...
+def run_query(sql: LiteralString) -> None: ...
 
 
 def caller(arbitrary_string: str, literal_string: LiteralString) -> None:
@@ -189,13 +232,11 @@ from typing import overload
 
 
 @overload
-def bar(x: int) -> str:
-    ...
+def bar(x: int) -> str: ...
 
 
 @overload
-def bar(x: str) -> int:
-    ...
+def bar(x: str) -> int: ...
 
 
 def bar(x):
@@ -281,8 +322,7 @@ from typing import final
 
 class Base:
     @final
-    def done(self) -> None:
-        ...
+    def done(self) -> None: ...
 
 
 class Sub(Base):
@@ -291,8 +331,7 @@ class Sub(Base):
 
 
 @final
-class Leaf:
-    ...
+class Leaf: ...
 
 
 class Other(Leaf):  # type: ignore # Error reported by type checker
@@ -315,12 +354,7 @@ print("typing.Callable, ParamSpec")
 # ParamSpec, 3.11 notation
 # https://docs.python.org/3/library/typing.html#typing.ParamSpec
 
-try:
-    from collections.abc import Callable
-except ImportError:
-    print("- [ ] FIXME: from collections.abc import Callable")
-
-from typing import Callable  # Workaround for test
+from typing import Callable
 from typing import TypeVar, ParamSpec
 
 T = TypeVar("T")
@@ -335,7 +369,9 @@ def add_logging(f: Callable[P, T]) -> Callable[P, T]:
         return f(*args, **kwargs)
 
     return inner
-
+class Settings:
+    def __init__(self):
+        pass
 
 @add_logging
 def add_two(x: float, y: float) -> float:
@@ -353,22 +389,23 @@ print("typing.get_origin()")
 
 from typing import get_origin
 
-# FIXME: - cpy_diff - get_origin() unsupported, or always returns None
-if not get_origin(str) is None:
-    print("- [ ] FIXME: cpy_diff - get_origin(str) should be None")
-# assert get_origin(Dict[str, int]) is dict
-# assert get_origin(Union[int, str]) is Union
+try:
+    assert get_origin(str) is None
+    assert get_origin(Dict[str, int]) is dict
+    assert get_origin(Union[int, str]) is Union
+except Exception as e:
+    print("- [ ] FIXME: cpy_diff - get_origin(tp) not supported")
 
 print("typing.get_args()")
 # https://docs.python.org/3/library/typing.html#typing.get_args
 from typing import get_args, Dict, Union
 
-# FIXME: - cpy_diff - get_args() unsupported, or always returns ()
-if not get_args(int) == ():
-    print("- [ ] FIXME: cpy_diff - get_args(int) should be ()")
-
-# assert get_args(Dict[int, str]) == (int, str), "get_args(Dict[int, str]) should be (int, str)"
-# assert get_args(Union[int, str]) == (int, str), "get_args(Union[int, str]) should be (int, str)"
+try:
+    assert get_args(int) == ()
+    assert get_args(Dict[int, str]) == (int, str)
+    assert get_args(Union[int, str]) == (int, str)
+except Exception as e:
+    print("- [ ] FIXME: cpy_diff - get_args(tp) not supported")
 
 
 print("Subscriptables")

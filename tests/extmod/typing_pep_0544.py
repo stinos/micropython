@@ -17,16 +17,12 @@ from typing import Protocol, Iterable
 
 
 class SupportsClose(Protocol):
-    def close(self) -> None:
-        ...
+    def close(self) -> None: ...
 
 
 class Resource:
-    ...
-
     def close(self) -> None:
-        self.file.close()  # type: ignore
-        self.lock.release()  # type: ignore
+        pass
 
 
 def close_all(things: Iterable[SupportsClose]) -> None:
@@ -34,13 +30,8 @@ def close_all(things: Iterable[SupportsClose]) -> None:
         t.close()
 
 
-# FIXME: Difference or Crash - Resource requires file and lock attributes
-# r = Resource()
-# close_all([f, r])  # OK!
-# try:
-#     close_all([1])  # Error: 'int' has no 'close' method
-# except Exception:
-#     print("Expected: 'int' has no 'close' method")
+close_all([Resource()])
+
 
 print("Protocol members")
 # https://peps.python.org/pep-0544/#protocol-members
@@ -89,8 +80,7 @@ print("Explicitly declaring implementation")
 
 class PColor(Protocol):
     @abstractmethod
-    def draw(self) -> str:
-        ...
+    def draw(self) -> str: ...
 
     def complex_method(self) -> int:
         # some complex code here
@@ -141,46 +131,56 @@ class Point(RGB):
     def __init__(self, red: int, green: int, blue: str) -> None:
         self.rgb = red, green, blue  # Error, 'blue' must be 'int' # type: ignore
 
+    def intensity(self):
+        return 1
+
+
+try:
+    print(Point(0, 1, 2).rgb)
+except Exception as e:
+    print("- [ ] FIXME: Difference or Crash - instantiating type implementing protocol failed:", e)
+
 
 print("Merging and extending protocols")
 # https://peps.python.org/pep-0544/#merging-and-extending-protocols
 
 from typing import Sized, Protocol
 
-# FIXME: TypeError: multiple bases have instance lay-out conflict - CRASH
-# Is this a MicroPython multiple inheritance limitation?
 try:
 
     class SizedAndClosable_1(Sized, Protocol):
-        def close(self) -> None:
-            ...
+        def close(self) -> None: ...
+
 except Exception as e:
-    print("-[ ] FIXME: Difference or Crash - multiple bases have instance lay-out conflict:", e)
+    print("- [ ] FIXME: Difference or Crash - multiple bases have instance lay-out conflict:", e)
 
 
 class SupportsClose_2(Protocol):
-    def close(self) -> None:
-        ...
+    def close(self) -> None: ...
 
 
-# FIXME: TypeError: multiple bases have instance lay-out conflict - CRASH
 try:
 
     class SizedAndClosable_2(Sized, SupportsClose_2, Protocol):
         pass
+
 except Exception as e:
-    print("-[ ] FIXME: Difference or Crash - multiple bases have instance lay-out conflict:", e)
+    print("- [ ] FIXME: Difference or Crash - multiple bases have instance lay-out conflict:", e)
 
 print("Generic protocols")
 # https://peps.python.org/pep-0544/#generic-protocols
 
-# FIXME: Micropython does not support User Defined Generic Classes
-# TypeError: 'type' object isn't subscriptable
-# from typing import TypeVar, Protocol, Iterator
-# T = TypeVar("T")
-# class Iterable(Protocol[T]):
-#     @abstractmethod
-#     def __iter__(self) -> Iterator[T]: ...
+from typing import TypeVar, Protocol, Iterator
+
+T = TypeVar("T")
+try:
+
+    class Iterable(Protocol[T]):
+        @abstractmethod
+        def __iter__(self) -> Iterator[T]: ...
+
+except Exception as e:
+    print("- [ ] FIXME: Micropython does not support User Defined Generic Classes:", e)
 
 
 print("Recursive protocols")
@@ -191,28 +191,27 @@ T = TypeVar("T")
 
 
 class Traversable(Protocol):
-    def leaves(self) -> Iterable["Traversable"]:
-        ...
+    def leaves(self) -> Iterable["Traversable"]: ...
 
 
 class SimpleTree:
-    def leaves(self) -> List["SimpleTree"]:
-        ...
+    def leaves(self) -> List["SimpleTree"]: ...
 
 
 root: Traversable = SimpleTree()  # OK
 
+try:
 
-# FIXME: CPY_DIFF : Micropython does not support User Defined Generic Classes
-# TypeError: 'type' object isn't subscriptable
-# class Tree(Generic[T]):
-#     def leaves(self) -> List["Tree[T]"]: ...
-#
-# def walk(graph: Traversable) -> None:
-#     ...
-# tree: Tree[float] = Tree()
-# tree: Tree = Tree()
-# walk(tree)  # OK, 'Tree[float]' is a subtype of 'Traversable'
+    class Tree(Generic[T]):
+        def leaves(self) -> List["Tree[T]"]: ...
+
+    def walk(graph: Traversable) -> None: ...
+
+    tree: Tree[float] = Tree()
+    tree: Tree = Tree()
+    walk(tree)  # OK, 'Tree[float]' is a subtype of 'Traversable'
+except Exception as e:
+    print("- [ ] FIXME: Micropython does not support User Defined Generic Classes:", e)
 
 
 print("Self-types in protocols")
@@ -221,21 +220,18 @@ C = TypeVar("C", bound="Copyable")  # type: ignore
 
 
 class Copyable(Protocol):
-    def copy(self: C) -> C:
-        ...
+    def copy(self: C) -> C: ...
 
 
 class One:
-    def copy(self) -> "One":
-        ...
+    def copy(self) -> "One": ...
 
 
 T = TypeVar("T", bound="Other")
 
 
 class Other:
-    def copy(self: T) -> T:
-        ...
+    def copy(self: T) -> T: ...
 
 
 c: Copyable
@@ -249,16 +245,13 @@ from typing import Optional, List, Protocol
 
 
 class Combiner(Protocol):
-    def __call__(self, *vals: bytes, maxlen: Optional[int] = None) -> List[bytes]:
-        ...
+    def __call__(self, *vals: bytes, maxlen: Optional[int] = None) -> List[bytes]: ...
 
 
-def good_cb(*vals: bytes, maxlen: Optional[int] = None) -> List[bytes]:
-    ...
+def good_cb(*vals: bytes, maxlen: Optional[int] = None) -> List[bytes]: ...
 
 
-def bad_cb(*vals: bytes, maxitems: Optional[int]) -> List[bytes]:
-    ...
+def bad_cb(*vals: bytes, maxitems: Optional[int]) -> List[bytes]: ...
 
 
 comb: Combiner = good_cb  # OK
@@ -271,17 +264,14 @@ from typing import Union, Optional, Protocol
 
 
 class Exitable(Protocol):
-    def exit(self) -> int:
-        ...
+    def exit(self) -> int: ...
 
 
 class Quittable(Protocol):
-    def quit(self) -> Optional[int]:
-        ...
+    def quit(self) -> Optional[int]: ...
 
 
-def finish(task: Union[Exitable, Quittable]) -> int:
-    ...
+def finish(task: Union[Exitable, Quittable]) -> int: ...
 
 
 class DefaultJob:
@@ -293,18 +283,6 @@ class DefaultJob:
 
 finish(DefaultJob())  # OK
 
-# ---------------
-
-from typing import Iterable, Hashable
-
-
-# # class HashableFloats(Iterable[float], Hashable, Protocol):
-# FIXME: TypeError: multiple bases have instance lay-out conflict
-# class HashableFloats(Iterable, Hashable, Protocol):
-#     pass
-# def cached_func(args: HashableFloats) -> float: ...
-# cached_func((1, 2, 3))  # OK, tuple is both hashable and iterable
-
 
 print("Type[] and class objects vs protocols")
 from typing import Type
@@ -312,8 +290,7 @@ from typing import Type
 
 class Proto(Protocol):
     @abstractmethod
-    def meth(self) -> int:
-        ...
+    def meth(self) -> int: ...
 
 
 class Concrete:
@@ -327,31 +304,28 @@ def fun(cls: Type[Proto]) -> int:
 
 fun(Concrete)  # OK
 
-# FIXME: Should Throw: Can't instantiate protocol with abstract methods -
-# try:
-#     fun(Proto)  # Error # type: ignore
-#     print("-[ ] FIXME: Should Throw: Can't instantiate protocol with abstract methods")
-# except Exception:
-#     print("Expected: Can't instantiate protocol with abstract methods")
+try:
+    fun(Proto)  # Error # type: ignore
+    print("- [ ] FIXME: Should Throw: Can't instantiate protocol with abstract methods")
+except TypeError as e:
+    print("Expected: Can't instantiate protocol with abstract methods", type(e))
+except Exception as e:
+    print("- [ ] FIXME: unexpected exception instantiating protocol with abstract methods:", e)
 
-# ---------------
 
 from typing import Any, Protocol
 
 
 class ProtoA(Protocol):
-    def meth(self, x: int) -> int:
-        ...
+    def meth(self, x: int) -> int: ...
 
 
 class ProtoB(Protocol):
-    def meth(self, obj: Any, x: int) -> int:
-        ...
+    def meth(self, obj: Any, x: int) -> int: ...
 
 
 class C:
-    def meth(self, x: int) -> int:
-        ...
+    def meth(self, x: int) -> int: ...
 
 
 a: ProtoA = C  # Type check error, signatures don't match! # type: ignore
@@ -370,30 +344,23 @@ class Id(Protocol):
 
 UserId = NewType("UserId", Id)  # Error, can't provide distinct type # type: ignore
 
-# -------------------------
-
-from typing import TypeVar, Reversible, Iterable, Sized
-
-# FIXME: cpy_diff : User Defined Generic Classes unsupported
-# TypeError: 'type' object isn't subscriptable
-
-# T = TypeVar("T")
-# class SizedIterable_3(Iterable[T], Sized, Protocol):
-#     pass
-# CompatReversible = Union[Reversible[T], SizedIterable_3[T]]
 
 print("@runtime_checkable decorator and narrowing types by isinstance()")
 
 
 from typing import runtime_checkable, Protocol
 
-# FIXME: cpy_diff : NotImplementedError: @runtime_checkable decorator unsupported
-# @runtime_checkable
-# class SupportsClose(Protocol):
-#     def close(self): ...
+
+@runtime_checkable
+class SupportsClose(Protocol):
+    def close(self): ...
 
 
-# assert isinstance(open(__file__), SupportsClose)
+try:
+    if not isinstance(open(__file__), SupportsClose):
+        print("- [ ] FIXME: cpy_diff : NotImplementedError: @runtime_checkable decorator unsupported")
+except Exception as e:
+    print("- [ ] FIXME: cpy_diff : NotImplementedError: @runtime_checkable decorator unsupported:", e)
 
 
 class Foo(Protocol):
@@ -414,6 +381,7 @@ from typing import (
     SupportsAbs,
     SupportsIndex,
 )
+
 # TODO: what are sensible tests for these protocols?
 
 print("-----")

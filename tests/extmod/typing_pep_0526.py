@@ -104,14 +104,6 @@ enterprise_d.stats = {}  # Flagged as error by a type checker # type: ignore
 Starship.stats = {}  # This is OK
 
 
-# FIXME: - cpy_diff - User Defined Generic Classes unsupported
-# from typing import Generic, TypeVar
-# T = TypeVar("T")
-# class Box(Generic[T]):
-#     def __init__(self, content):
-#         self.content: T = content
-
-
 print("Annotating expressions")
 
 
@@ -141,24 +133,17 @@ def f():
     x: NonexistentName  # No RUNTIME error. # type: ignore
 
 
-# FIXME: cpy_diff - MicroPython does not raise NameError at runtime
-# try:
-#     x: NonexistentName  # Error!
-#     print("-[ ] FIXME: Expected NameError")
-# except NameError:
-#     print("Expected NameError:")
-
-# try:
-
-#     class X:
-#         var: NonexistentName  # Error!
-# except NameError:
-#     print("Expected NameError:")
+try:
+    x: NonexistentName  # Error!
+    print("- [ ] FIXME: cpy_diff - MicroPython does not raise NameError at runtime")
+except NameError:
+    print("Expected NameError")
 
 
-# FIXME: cpy_diff - MicroPython does not provide the ``__annotations__`` dict at runtime
-# print(__annotations__)
-# __annotations__["s"] = str
+try:
+    print(__annotations__)
+except NameError:
+    print("- [ ] FIXME: cpy_diff - MicroPython does not provide the ``__annotations__`` dict at runtime")
 
 
 alice: "well done" = "A+"  # type: ignore

@@ -8,41 +8,46 @@ print("# Python 3.8")
 print("### PEP 0591 - Final qualifier for types")
 # https://peps.python.org/pep-0591/
 
+# Note this is a typechecker enforcement, not a runtime one.
+
 print("The final decorator")
 
-from typing import List, Sequence, final
+from typing import List, Sequence, final, overload
 
 
 @final
-class Base_1:
+class Base_1: ...
+
+
+class Derived_1(Base_1):  # Error: Cannot inherit from final class "Base"
     ...
 
 
-try:
+class Base:
+    @overload
+    def method(self) -> None: ...
+    @overload
+    def method(self, arg: int) -> int: ...
+    @final
+    def method(self, x=None):
+        return x
 
-    class Derived_1(Base_1):  # Error: Cannot inherit from final class "Base"
-        ...
-except Exception:
-    print("Expected: Cannot inherit from final class 'Base'")
 
-
-# -----------------
+print(Base().method(1))
 
 
 class Base_2:
     @final
-    def foo(self) -> None:
+    def foo(self) -> None: ...
+
+
+class Derived_2(Base_2):
+    def foo(self) -> None:  # Error: Cannot override final attribute "foo"
+        # (previously declared in base class "Base")
         ...
 
 
-try:
-
-    class Derived_2(Base_2):
-        def foo(self) -> None:  # Error: Cannot override final attribute "foo"
-            # (previously declared in base class "Base")
-            ...
-except Exception:
-    print("Expected: Cannot override final attribute 'foo'")
+print(Base_2().foo())
 
 
 print("The Final annotation")
@@ -63,38 +68,30 @@ class Base:
     DEFAULT_ID: Final = 0
 
 
-try:
-    RATE = 300  # Error: can't assign to final attribute
-except Exception:
-    print("Expected: can't assign to final attribute 'RATE'")
+RATE = 300  # Error: can't assign to final attribute
+Base.DEFAULT_ID = 1  # Error: can't override a final attribute
 
-try:
-    Base.DEFAULT_ID = 1  # Error: can't override a final attribute
-except Exception:
-    print("Expected: can't override a final attribute 'DEFAULT_ID'")
 
 # -------------------
 
-# FIXME: Difference - Final cannot be used with container types
 try:
     x: List[Final[int]] = []  # Error!
-    print("-[ ] FIXME: Final cannot be used with container types")
+    print("- [ ] FIXME: Final cannot be used with container types")
 except Exception:
     print("Expected: Final cannot be used with container types")
 
 
-try:
+def fun(x: Final[List[int]]) -> None:  # Error!
+    ...
 
-    def fun(x: Final[List[int]]) -> None:  # Error!
-        ...
+fun(1)
 
-except Exception:
-    print("Expected: Final cannot be used for parameters or return types")
 
 # -------------------
 
 x_2: Final = ["a", "b"]
 x_2.append("c")  # OK
+print(x_2)
 
 y: Final[Sequence[str]] = ["a", "b"]
 z: Final = ("a", "b")  # Also works

@@ -27,12 +27,11 @@ class MyOtherList(MyList):
 
 assert MyList()[0] == 1
 
-# FIXME: Difference or Crash - __class_getitem__ not supported
-# tests/extmod/typing_pep_0560.py", line 29, in <module>
-# TypeError: 'type' object isn't subscriptable
-# assert MyList[int] == "MyList[int]"
-# assert MyOtherList()[0] == 1
-# assert MyOtherList[int] == "MyOtherList[int]"
+try:
+    print(MyList[int])
+    print(MyOtherList[int])
+except Exception as e:
+    print("- [ ] FIXME: __class_getitem__ not supported:", e)
 
 
 # -------------------------
@@ -52,13 +51,14 @@ class NewList:
         return GenericAlias(cls, item)
 
 
-# FIXME: Difference or Crash - __class_getitem__ not supported
-# TypeError: 'type' object isn't subscriptable
-# class Tokens(NewList[int]): ...
+try:
 
+    class Tokens(NewList[int]): ...
 
-# Not sure these make sense to test
-# assert Tokens.__bases__ == (NewList,)
-# assert Tokens.__orig_bases__ == (NewList[int],)
+    print(NewList in Tokens.__bases__)
+    print(GenericAlias in Tokens.__orig_bases__)
+    print([x in Tokens.__mro__ for x in [Tokens, NewList, object]])
+except Exception as e:
+    print("- [ ] FIXME: __mro_entries__ not supported:", e)
 
 print("-----")

@@ -1,5 +1,6 @@
 # This doesn't quite test everything but just serves to verify that basic syntax works,
 # which for MicroPython means everything typing-related should be ignored.
+import sys
 
 try:
     import typing
@@ -9,10 +10,17 @@ except ImportError:
 
 from typing import List, Tuple, Iterable, NewType, TypeVar, Union, Generic
 
-# Available with MICROPY_PY_TYPING_EXTRA_MODULES.
-try:
-    import typing_extensions
-except ImportError:
+# Available with MICROPY_PY_TYPING_EXTRA_MODULES. Skipped for Python3 since the test runner only
+# loads core modules.
+if "micropython" in sys.implementation.name:
+    try:
+        import typing_extensions
+    except ImportError:
+        print("- [ ] FIXME: typing_extensions not available")
+        from typing import Any
+
+        typing_extensions = None
+else:
     from typing import Any
 
     typing_extensions = None
@@ -23,7 +31,7 @@ try:
 
     collections.abc.Sequence
 except ImportError:
-    pass
+    print("- [ ] FIXME: collections.abc not available")
 
 import sys
 
@@ -36,23 +44,18 @@ if typing_extensions is not None:
     getattr(__future__, "annotations")
 
 
-if "micropython" in sys.implementation.name:
-    # Verify assignment is not possible.
-    try:
-        typing.a = None
-        raise Exception()
-    except AttributeError:
-        pass
-    try:
-        typing[0] = None
-        raise Exception()
-    except TypeError:
-        pass
-    try:
-        List.a = None
-        raise Exception()
-    except AttributeError:
-        pass
+# Verify assignment is not possible.
+try:
+    typing[0] = None
+    print("- [ ] FIXME: 'module' object does not support item assignment")
+except TypeError:
+    pass
+
+try:
+    List.a = None
+    print("- [ ] FIXME: cannot set 'a' attribute of immutable type 'list'")
+except (AttributeError, TypeError):
+    pass
 
 
 MyAlias = str
@@ -65,3 +68,18 @@ hintedGlobal: Any = None
 
 def func_with_hints(c: int, b: MyAlias, a: Union[int, None], lst: List[float] = [0.0]) -> Any:
     pass
+
+
+# Misc
+try:
+
+    class MyMeta(type): ...
+
+    class MyABC(metaclass=MyMeta):
+        def __init__(self):
+            pass
+
+    print(MyABC())
+
+except Exception as e:
+    print("- [ ] FIXME: metaclass not supported", type(e), e)

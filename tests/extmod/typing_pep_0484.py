@@ -75,24 +75,23 @@ print("concat:", concat("a", "b"))
 from typing import Generic, TypeVar
 
 T = TypeVar("T")
-# FIXME: Crash - inheriting from typing.Generic[T] unsupported at runtime
-# try:
-#
-#     class LoggedVar(Generic[T]):
-#         pass
-#
-#         def __init__(self, value: T, name: str) -> None:
-#             self.name = name
-#             self.value = value
-#
-#         def set(self, new: T) -> None:
-#             self.value = new
-#
-#         def get(self) -> T:
-#             return self.value
-#
-# except Exception as e:
-#     print("-[ ] FIXME: Difference - Generic[T] base class unsupported:", e)
+try:
+
+    class LoggedVar(Generic[T]):
+        def __init__(self, value: T, name: str) -> None:
+            self.name = name
+            self.value = value
+
+        def set(self, new: T) -> None:
+            self.value = new
+
+        def get(self) -> T:
+            return self.value
+
+    print(LoggedVar('val', 'name').name)
+
+except Exception as e:
+    print("- [ ] FIXME: Difference - Generic[T] base class unsupported:", e)
 
 
 # Union/Optional examples
@@ -119,7 +118,7 @@ try:
     v = UserId(5)
     print("NewType UserId runtime:", v, type(v))
 except Exception as e:
-    print("-[ ] FIXME: Difference or Crash - NewType runtime issue:", e)
+    print("- [ ] FIXME: Difference or Crash - NewType runtime issue:", e)
 
 print("TYPE_CHECKING guard")
 
@@ -128,8 +127,7 @@ from typing import TYPE_CHECKING
 # TYPE_CHECKING guard
 if TYPE_CHECKING:
     # This block is for type checkers only
-    pass
-    print("typing.TYPE_CHECKING is True at runtime. ERROR")
+    print("- [ ] FIXME: typing.TYPE_CHECKING is True at runtime. ERROR")
 else:
     print("typing.TYPE_CHECKING is False at runtime as expected")
 
@@ -164,13 +162,11 @@ from typing import overload
 
 
 @overload
-def func(x: int) -> int:
-    ...
+def func(x: int) -> int: ...
 
 
 @overload
-def func(x: str) -> str:
-    ...
+def func(x: str) -> str: ...
 
 
 def func(x):
@@ -182,6 +178,9 @@ print("overload func for int:", func(1))
 # Cast example: at runtime cast returns the value
 from typing import cast
 
-print("cast runtime identity:", cast(str, 123))
+if cast(str, 123) == 123:
+    print("cast runtime works as identity function")
+else:
+    print("- [ ] FIXME: Difference - cast runtime does not work as identity function")
 
 print("-----")

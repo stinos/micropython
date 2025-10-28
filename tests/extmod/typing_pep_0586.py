@@ -22,30 +22,36 @@ class Color:
     BLUE = 3
 
 
-Literal[26]
-Literal[0x1A]  # Exactly equivalent to Literal[26]
-Literal[-4]
-Literal["hello world"]
-Literal[b"hello world"]
-Literal["hello world"]
-Literal[True]
-Literal[Color.RED]  # Assuming Color is some enum
-Literal[None]
+try:
+    Literal[26]
+    Literal[0x1A]  # Exactly equivalent to Literal[26]
+    Literal[-4]
+    Literal["hello world"]
+    Literal[b"hello world"]
+    Literal["hello world"]
+    Literal[True]
+    Literal[Color.RED]  # Assuming Color is some enum
+    Literal[None]
+except Exception as e:
+    print("- [ ] FIXME: Literal indexing not supported:", e)
+
+try:
+    ReadOnlyMode = Literal["r", "r+"]
+    WriteAndTruncateMode = Literal["w", "w+", "wt", "w+t"]
+    WriteNoTruncateMode = Literal["r+", "r+t"]
+    AppendMode = Literal["a", "a+", "at", "a+t"]
+    AllModes = Literal[ReadOnlyMode, WriteAndTruncateMode, WriteNoTruncateMode, AppendMode]
+except Exception as e:
+    print("- [ ] FIXME: Literal multi indexing not supported:", e)
+
+try:
+    Literal[Literal[Literal[1, 2, 3], "foo"], 5, None]
+    Optional[Literal[1, 2, 3, "foo", 5]]
+except Exception as e:
+    print("- [ ] FIXME: Literal nested indexing not supported:", e)
+
 
 # ----------
-
-# FIXME: TypeError: 'type' object isn't subscriptable
-ReadOnlyMode = Literal["r", "r+"]
-WriteAndTruncateMode = Literal["w", "w+", "wt", "w+t"]
-WriteNoTruncateMode = Literal["r+", "r+t"]
-AppendMode = Literal["a", "a+", "at", "a+t"]
-
-# AllModes = Literal[ReadOnlyMode, WriteAndTruncateMode, WriteNoTruncateMode, AppendMode]
-
-# ----------
-# FIXME: TypeError: 'type' object isn't subscriptable
-Literal[Literal[Literal[1, 2, 3], "foo"], 5, None]
-# Optional[Literal[1, 2, 3, "foo", 5]]
 
 print("Parameters at runtime")
 
@@ -61,8 +67,7 @@ y: Literal[my_function] = my_function  # type: ignore
 print("Using non-Literals in Literal contexts")
 
 
-def expects_str(x: str) -> None:
-    ...
+def expects_str(x: str) -> None: ...
 
 
 var: Literal["foo"] = "foo"
@@ -73,8 +78,7 @@ expects_str(var)
 # ---------------------
 
 
-def expects_literal(x: Literal["foo"]) -> None:
-    ...
+def expects_literal(x: Literal["foo"]) -> None: ...
 
 
 def runner(my_str: str) -> None:
@@ -84,15 +88,20 @@ def runner(my_str: str) -> None:
 runner("foo")  # type: ignore
 
 print("Intelligent indexing of structured data")
-from typing import Tuple, List, Literal
+from typing import Tuple, List, Literal, reveal_type
 
 a: Literal[0] = 0
 b: Literal[5] = 5
 
 some_tuple: Tuple[int, str, List[bool]] = (3, "abc", [True, False])
 
-# FIXME: NameError: name 'reveal_type' isn't defined
-# reveal_type(some_tuple[a])  # Revealed type is 'int'
+# TODO, sort of: MicroPython doesn't support this anwyay but it can also
+# not easily be checked since reveal_type prints to stderr.
+# try:
+#     reveal_type(some_tuple[a])  # Revealed type is 'int'
+# except Exception as e:
+#     print("- [ ] FIXME: reveal_type is not supported:", e)
+
 
 try:
     some_tuple[b]  # Error: 5 is not a valid index into the tuple # type: ignore
@@ -106,8 +115,7 @@ class Test:
     def __init__(self, param: int) -> None:
         self.myfield = param
 
-    def mymethod(self, val: int) -> str:
-        ...
+    def mymethod(self, val: int) -> str: ...
 
 
 a: Literal["myfield"] = "myfield"
@@ -135,16 +143,14 @@ _PathType = str
 def open(
     path: _PathType,
     mode: Literal["r", "w", "a", "x", "r+", "w+", "a+", "x+"],
-) -> IO[Text]:
-    ...
+) -> IO[Text]: ...
 
 
 @overload
 def open(
     path: _PathType,
     mode: Literal["rb", "wb", "ab", "xb", "r+b", "w+b", "a+b", "x+b"],
-) -> IO[bytes]:
-    ...
+) -> IO[bytes]: ...
 
 
 # Fallback overload for when the user isn't using literal types
