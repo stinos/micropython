@@ -391,7 +391,7 @@ def run_micropython(pyb, args, test, is_special=False, is_feature_check=False):
             # check for any cmdline options needed for this test
             cmdlist = [MICROPYTHON]
             send_sigint = False
-            with open(test.filename, "rb") as f:
+            with open(test.filename_abs, "rb") as f:
                 for line in f:
                     if line.startswith(b"# cmdline:"):
                         # subprocess.check_output on Windows only accepts strings, not bytes
@@ -519,7 +519,7 @@ def run_micropython(pyb, args, test, is_special=False, is_feature_check=False):
                             os.close(slave)
                 else:
                     output_mupy = subprocess.check_output(
-                        cmdlist + [test.filename], stderr=subprocess.STDOUT
+                        cmdlist + [test.filename_abs], stderr=subprocess.STDOUT
                     )
             except subprocess.CalledProcessError:
                 return b"CRASH"
@@ -534,7 +534,7 @@ def run_micropython(pyb, args, test, is_special=False, is_feature_check=False):
             if sys.platform == "darwin":
                 cmdlist.extend(["-X", "realtime"])
 
-            cwd = os.path.dirname(test.filename)
+            cwd = os.path.dirname(test.filename_abs)
 
             # if running via .mpy, first compile the .py file
             if args.via_mpy:
@@ -542,7 +542,7 @@ def run_micropython(pyb, args, test, is_special=False, is_feature_check=False):
                 subprocess.check_output(
                     [MPYCROSS]
                     + args.mpy_cross_flags.split()
-                    + ["-o", mpy_filename, "-X", "emit=" + args.emit, test.filename]
+                    + ["-o", mpy_filename, "-X", "emit=" + args.emit, test.filename_abs]
                 )
                 mpy_modname = os.path.splitext(os.path.basename(mpy_filename))[0]
                 cmdlist.extend(["-m", mpy_modname])
@@ -589,10 +589,10 @@ def run_micropython(pyb, args, test, is_special=False, is_feature_check=False):
     if is_special or test.filename_abs in tests_with_regex_output:
         # convert parts of the output that are not stable across runs
         # Prefer emitter-specific expected output.
-        exp_file = test.filename + "." + args.emit + ".exp"
+        exp_file = test.filename_abs + "." + args.emit + ".exp"
         if not os.path.isfile(exp_file):
             # Fall back to generic expected output.
-            exp_file = test.filename + ".exp"
+            exp_file = test.filename_abs + ".exp"
         with open(exp_file, "rb") as f:
             lines_exp = []
             for line in f.readlines():
@@ -838,7 +838,7 @@ def run_tests(pyb, tests, args, result_dir, num_threads=1):
 
         test_basename = test_file.replace("..", "_").replace("./", "").replace("/", "_")
 
-        skip_it = os.path.realpath(test_file) in skip_tests
+        skip_it = os.path.realpath(test.filename_abs) in skip_tests
 
         skip_reasons = []
         for requirement in test.requires_feature:
@@ -913,10 +913,10 @@ def run_tests(pyb, tests, args, result_dir, num_threads=1):
             output_expected = None
         else:
             # Prefer emitter-specific expected output.
-            test_file_expected = test_file + "." + args.emit + ".exp"
+            test_file_expected = test.filename_abs + "." + args.emit + ".exp"
             if not os.path.isfile(test_file_expected):
                 # Fall back to generic expected output.
-                test_file_expected = test_file + ".exp"
+                test_file_expected = test.filename_abs + ".exp"
             if os.path.isfile(test_file_expected):
                 # Expected output given by a file, so read that in.
                 with open(test_file_expected, "rb") as f:
@@ -926,7 +926,7 @@ def run_tests(pyb, tests, args, result_dir, num_threads=1):
                 try:
                     output_expected = subprocess.check_output(
                         CPYTHON3_CMD + [test.filename_abs],
-                        cwd=os.path.dirname(test_file),
+                        cwd=os.path.dirname(test.filename_abs),
                         stderr=subprocess.STDOUT,
                     )
                 except subprocess.CalledProcessError as er:
@@ -981,7 +981,7 @@ def run_tests(pyb, tests, args, result_dir, num_threads=1):
 
         # Print a note if this looks like it might have been a misfired unittest
         if not uses_unittest and not test_passed:
-            with open(test_file, "r", encoding="utf-8") as f:
+            with open(test.filename_abs, "r", encoding="utf-8") as f:
                 if any(re.match("^import.+unittest", l) for l in f.readlines()):
                     print(
                         "NOTE: {} may be a unittest that doesn't run unittest.main()".format(
