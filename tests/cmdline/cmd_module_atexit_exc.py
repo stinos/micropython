@@ -1,3 +1,4 @@
+# MICROPYPATH: tests
 # cmdline: -m cmdline.cmd_module_atexit_exc
 #
 # Test running as a module and using sys.atexit, with script completion via sys.exit.

@@ -391,6 +391,7 @@ def run_micropython(pyb, args, test, is_special=False, is_feature_check=False):
             # check for any cmdline options needed for this test
             cmdlist = [MICROPYTHON]
             send_sigint = False
+            extra_path = []
             with open(test.filename, "rb") as f:
                 for line in f:
                     if line.startswith(b"# cmdline:"):
@@ -398,8 +399,21 @@ def run_micropython(pyb, args, test, is_special=False, is_feature_check=False):
                         cmdlist += [str(c, "utf-8") for c in line[10:].strip().split()]
                     elif line.startswith(b"# sigint:"):
                         send_sigint = True
+                    elif line.startswith(b"# MICROPYPATH:"):
+                        # add paths relative to root
+                        extra_path.extend(
+                            base_path(os.path.join("..", p))
+                            for p in str(line[15:].strip(), "utf-8").split(";")
+                        )
                     elif not line.startswith(b"#"):
                         break
+            if extra_path:
+                environment = os.environ.copy()
+                environment["MICROPYPATH"] = (
+                    environment["MICROPYPATH"] + os.pathsep + os.pathsep.join(extra_path)
+                )
+            else:
+                environment = os.environ
 
             # run the test, possibly with redirected input
             try:
@@ -485,6 +499,7 @@ def run_micropython(pyb, args, test, is_special=False, is_feature_check=False):
                                 stderr=subprocess.STDOUT,
                                 bufsize=0,
                                 preexec_fn=preexec_fn,
+                                env=environment,
                             )
                             banner = get(True)
                             if send_sigint:
@@ -519,7 +534,7 @@ def run_micropython(pyb, args, test, is_special=False, is_feature_check=False):
                             os.close(slave)
                 else:
                     output_mupy = subprocess.check_output(
-                        cmdlist + [test.filename], stderr=subprocess.STDOUT
+                        cmdlist + [test.filename], stderr=subprocess.STDOUT, env=environment
                     )
             except subprocess.CalledProcessError:
                 return b"CRASH"
