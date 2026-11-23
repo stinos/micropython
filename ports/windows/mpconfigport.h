@@ -161,6 +161,7 @@
 #define MICROPY_PY_MACHINE_PIN_BASE (1)
 #define MICROPY_MACHINE_MEM_GET_READ_ADDR   mod_machine_mem_get_addr
 #define MICROPY_MACHINE_MEM_GET_WRITE_ADDR  mod_machine_mem_get_addr
+#define MICROPY_MODULE_LOADDYNLIB   (1)
 
 // Enable support for compile-only mode.
 #define MICROPY_PYEXEC_COMPILE_ONLY (1)
