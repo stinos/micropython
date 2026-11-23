@@ -1036,6 +1036,14 @@ def run_tests(pyb, tests, args, result_dir, num_threads=1):
     return test_results.value, testcase_count.value
 
 
+def add_run_tests_information(args):
+    args.base_path = base_path()
+    args.CPYTHON3 = CPYTHON3
+    args.MICROPYTHON = MICROPYTHON
+    args.MICROPYPATH = os.environ["MICROPYPATH"]
+    return args
+
+
 class append_filter(argparse.Action):
     def __init__(self, option_strings, dest, **kwargs):
         super().__init__(option_strings, dest, default=[], **kwargs)
@@ -1168,6 +1176,11 @@ the last matching regex is used:
     set_injected_prologue(prologue)
 
     if args.print_failures:
+        try:
+            with open(get_results_filename(args), "r") as f:
+                print("args", json.load(f)["args"])
+        except Exception:
+            pass
         for out in glob(os.path.join(args.result_dir, "*.out")):
             testbase = out[:-4]
             print()
@@ -1296,6 +1309,11 @@ the last matching regex is used:
 
     try:
         os.makedirs(args.result_dir, exist_ok=True)
+        args = add_run_tests_information(args)
+        print(f"{args.base_path=}")
+        print(f"{args.CPYTHON3=}")
+        print(f"{args.MICROPYTHON=}")
+        print(f"{args.MICROPYPATH=}")
         test_results, testcase_count = run_tests(pyb, tests, args, args.result_dir, args.jobs)
         res = create_test_report(args, test_results, testcase_count)
     finally:
